@@ -8,6 +8,9 @@ module.exports = {
       colors: {
         "current-purple": "#5E50A1",
       },
+      backgroundImage: (theme) => ({
+        "hero-pattern": "url('/images/bg.png')",
+      }),
     },
   },
   variants: {
