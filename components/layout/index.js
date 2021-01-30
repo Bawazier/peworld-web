@@ -12,7 +12,7 @@ function DefaultLayout({children}) {
         <title>peworld</title>
         <link rel="icon" href="../icons/peworld-a.svg" />
       </Head>
-      <main className="w-4/5 flex flex-col mx-auto">
+      <main className="static w-4/5 flex flex-col mx-auto">
         {children}
       </main>
       <Footer />

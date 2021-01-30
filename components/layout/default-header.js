@@ -3,7 +3,7 @@ import Link from "next/link";
 
 function DefaultHeader() {
   return (
-    <header>
+    <header className="shadow-xl">
       <div className="flex flex-row mx-auto py-4 justify-between items-center w-4/5">
         <div>
           <img src="../icons/peworld-a.svg" className="w-36" />
