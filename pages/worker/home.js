@@ -17,17 +17,20 @@ function Home() {
           <FaSearch className="text-gray-600 text-xl" />
         </div>
 
-        <div className="border-l-2 p-2 flex justify-center items-center">
-          <button className="text-gray-600 text-xl flex space-x-10">
-            <FaSortDown className="text-gray-600 text-xl" />
-            Sort
-          </button>
-          {/* <div>
-            <a></a>
-            <a></a>
-            <a></a>
-          </div> */}
-        </div>
+        <form className="flex items-center justify-center border-l-2 px-4">
+          <i className="bg-transparent" aria-hidden={true}>
+            <FaSortDown className="text-gray-600 text-3xl" />
+          </i>
+          <select className="w-full bg-transparent appearance-none text-sm font-bold">
+            <option selected>Sort</option>
+            <option>By Nama</option>
+            <option>By Skill</option>
+            <option>By Lokasi</option>
+            <option>By freelance</option>
+            <option>By fulltime</option>
+          </select>
+        </form>
+
         <button className="text-white bg-current-purple text-xl p-2 rounded-md">
           Search
         </button>
