@@ -9,13 +9,21 @@
   },
   "dependencies": {
     "autoprefixer": "^10.2.3",
+    "axios": "^0.21.1",
+    "formik": "^2.2.6",
     "next": "10.0.5",
     "postcss": "^8.2.4",
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-icons": "^4.1.0",
+    "react-redux": "^7.2.2",
     "reactstrap": "^8.9.0",
-    "tailwindcss": "^2.0.2"
+    "redux": "^4.0.5",
+    "redux-logger": "^3.0.6",
+    "redux-persist": "^6.0.0",
+    "redux-promise-middleware": "^6.1.2",
+    "tailwindcss": "^2.0.2",
+    "yup": "^0.32.8"
   },
   "devDependencies": {
     "eslint": "^7.18.0",
