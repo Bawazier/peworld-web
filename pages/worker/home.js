@@ -8,8 +8,8 @@ import { FaSearch, FaSortDown } from "react-icons/fa";
 function Home() {
   return (
     <Layout>
-      <section className="z-50 bg-white grid grid-cols-7 gap-2 py-2 px-4 flex items-center rounded-md shadow-xl my-6">
-        <div className="flex items-center col-span-5 px-2">
+      <section className="px-0 grid-cols-3 sm:z-50 bg-white grid grid-cols-7 gap-2 py-2 px-4 flex items-center rounded-md shadow-xl my-6">
+        <div className="col-span-2 sm:flex items-center col-span-5 px-2">
           <input
             placeholder="Search for any skill"
             className="w-full text-xl"
@@ -17,7 +17,7 @@ function Home() {
           <FaSearch className="text-gray-600 text-xl" />
         </div>
 
-        <form className="flex items-center justify-center border-l-2 px-4">
+        <form className="hidden sm:flex items-center justify-center border-l-2 px-4">
           <i className="bg-transparent" aria-hidden={true}>
             <FaSortDown className="text-gray-600 text-3xl" />
           </i>

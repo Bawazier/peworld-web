@@ -1,7 +1,18 @@
-import '../styles/globals.css'
+/* eslint-disable react/prop-types */
+/* eslint-disable react/react-in-jsx-scope */
+import "../styles/globals.css";
+import { Provider } from "react-redux";
+import { store, persistor } from "../redux/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <Component {...pageProps} />
+      </PersistGate>
+    </Provider>
+  );
 }
 
-export default MyApp
+export default MyApp;
