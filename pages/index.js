@@ -26,7 +26,9 @@ export default function Home() {
             <img src="/images/bgpromotion-a.png" className="w-full h-full" />
           </div>
           <Link href="/">
-            <button className="font-sans w-full sm:w-2/5 bg-current-purple text-white rounded-md text-lg font-bold px-4 py-2">
+            <button
+              className="font-sans w-full sm:w-2/5 bg-current-purple text-white rounded-md text-lg font-bold px-4 py-2"
+            >
               Mulai Dari Sekarang
             </button>
           </Link>
@@ -124,3 +126,19 @@ export default function Home() {
     </Layout>
   );
 }
+
+// export async function getServerSideProps({req}){
+//   const cookies = await parseCookies(req);
+//   console.log(req.headers);
+//   if (Object.keys(cookies).length === 0 && cookies.constructor === Object) {
+//     return {
+//       redirect: {
+//         destination: "/worker/auth/login",
+//         permanent: false,
+//       },
+//     };
+//   }
+//   return {
+//     props: {},
+//   };
+// }

@@ -1,5 +1,5 @@
 import React from "react";
-import Layout from "../../components/layout/auth-layout";
+import Layout from "../../../components/layout/auth-layout";
 
 function ResetPass() {
   return (
