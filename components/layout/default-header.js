@@ -2,15 +2,19 @@
 import React from "react";
 import Link from "next/link";
 import { FiMail, FiBell } from "react-icons/fi";
+import { useCookies } from "react-cookie";
 
-function DefaultHeader({login}) {
+function DefaultHeader() {
+  const [cookies] = useCookies(["user"]);
+  console.log(cookies.user);
+
   return (
     <header className="shadow-xl">
       <div className="flex flex-row mx-auto py-4 justify-between items-center w-4/5">
         <div>
           <img src="../icons/peworld-a.svg" className="w-36" />
         </div>
-        {login ? (
+        {cookies.user ? (
           <div className="hidden sm:flex items-center space-x-6">
             <Link href="/">
               <FiBell className="text-gray-500 text-2xl" />
@@ -32,7 +36,7 @@ function DefaultHeader({login}) {
                 Masuk
               </button>
             </Link>
-            <Link href="//worker/auth/signup">
+            <Link href="/worker/auth/signup">
               <button className="font-sans bg-current-purple text-white rounded-md text-lg font-bold px-4 py-2">
                 Daftar
               </button>
