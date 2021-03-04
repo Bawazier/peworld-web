@@ -1,17 +1,27 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/react-in-jsx-scope */
 import "../styles/globals.css";
-import { Provider } from "react-redux";
-import { store, persistor } from "../redux/store";
-import { PersistGate } from "redux-persist/integration/react";
+import React from "react";
+import { QueryClientProvider, QueryClient } from "react-query";
+import { Hydrate } from "react-query/hydration";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { CookiesProvider } from "react-cookie";
 
 function MyApp({ Component, pageProps }) {
+  const queryClientRef = React.useRef();
+  if (!queryClientRef.current) {
+    queryClientRef.current = new QueryClient();
+  }
+
   return (
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <Component {...pageProps} />
-      </PersistGate>
-    </Provider>
+    <CookiesProvider>
+      <QueryClientProvider client={queryClientRef.current}>
+        <Hydrate state={pageProps.dehydratedState}>
+          <Component {...pageProps} />
+        </Hydrate>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
+    </CookiesProvider>
   );
 }
 
