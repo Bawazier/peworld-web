@@ -23,16 +23,18 @@ export const resetPassword = (id, data) => {
 };
 
 // * HOME API
-export const getHome = (
+export const getHome = async (
   token,
   page = 1,
-  limit = 10,
   sortBy = "createdAt",
-  sortType = "DESC"
+  sortType = "DESC",
+  search = ""
 ) => {
-  return http(token).get(
-    `home?page=${page}&&limit=${limit}&&sortBy=${sortBy}&&sortType=${sortType}`
+  const { data } = await http(token).get(
+    `home?page=${page}&&sortBy=${sortBy}&&sortType=${sortType}&&search[name]=${search}`
   );
+
+  return data;
 };
 
 export const getDetailsUser = (token, id) => {
