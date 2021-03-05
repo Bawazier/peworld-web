@@ -48,7 +48,7 @@ function Login() {
         onSubmit={(values) => mutate(values, {
           onSuccess: () => {
             console.log(cookies);
-            return router.push(`/${roles}/home`);
+            return router.push(`/${roles}`);
           }
         })}
       >
