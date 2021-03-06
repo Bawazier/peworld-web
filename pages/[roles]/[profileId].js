@@ -9,14 +9,31 @@ import {
   FaGithub,
   FaLinkedin,
 } from "react-icons/fa";
+import { useQuery } from "react-query";
+import { getDetailsUser } from "../../libs/api";
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
+import { useCookies } from "react-cookie";
 
 function Profile() {
+  const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
   const router = useRouter();
-  const { roles } = router.query;
+  const { roles, profileId } = router.query;
   const [toastPortfolio, setToastPortfolio] = useState(true);
   const [toastWorkExo, setToastWorkExo] = useState(false);
+  const [cookies] = useCookies(["user"]);
+
+  const { data, isSuccess } = useQuery(
+    ["worker-detail", profileId],
+    () => getDetailsUser(cookies.user, profileId),
+    {
+      keepPreviousData: true,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      retry: 2,
+      cacheTime: 1000 * 60,
+    }
+  );
 
   const togglePortfolio = () => {
     setToastPortfolio(true);
@@ -29,58 +46,70 @@ function Profile() {
 
   return (
     <Layout>
-      {roles === "worker" ? (
+      {roles === "worker" && isSuccess ? (
         <>
           <div className="z-0 absolute bg-current-purple w-screen h-80 top-25 left-0"></div>
           <section className="z-50 grid grid-cols-3 gap-8">
             <section className="bg-white flex flex-col space-y-10 rounded-2xl py-4 px-8 shadow-2xl my-20">
               <div className="flex items-center justify-center">
-                <img src="../images/person.png" className="w-50 h-50" />
+                <img
+                  src={
+                    data.results.photo
+                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
+                      : "../images/person.png"
+                  }
+                  className="w-32 h-32 rounded-full"
+                />
               </div>
               <div className="flex flex-col space-y-2">
-                <h1 className="font-semibold text-xl">Louis Tomlinson</h1>
-                <h4>Web Developer</h4>
+                <h1 className="font-semibold text-xl">{data.results.name}</h1>
+                <h4>{data.results.jobTitle}</h4>
                 <span className="flex items-center text-gray-400">
-                  <FaMapMarkerAlt />
-              Purwokerto, Jawa Tengah
+                  {data.results.address && <FaMapMarkerAlt />}
+                  {data.results.address}
                 </span>
-                <p className="text-gray-400">Freelancer</p>
               </div>
               <div>
                 <p className="text-gray-400 leading-relaxed">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Vestibulum erat orci, mollis nec gravida sed, ornare quis urna.
-                  Curabitur eu lacus fringilla, vestibulum risus at.
+                  {data.results.bio}
                 </p>
               </div>
-              <button className="text-white bg-current-purple text-xl py-2 px-4 rounded-md">
-                Hire
-              </button>
+              <div className="flex flex-col space-y-2">
+                <button className="text-white bg-current-purple text-xl py-2 px-4 rounded-md">
+                  Hire
+                </button>
+                <button
+                  onClick={() => router.push(`/${roles}`)}
+                  className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
+                >
+                  Kembali
+                </button>
+              </div>
               <div className="flex flex-col space-y-2">
                 <h1 className="font-semibold text-lg">Skill</h1>
                 <div className="grid grid-cols-3 gap-4">
-                  <CardSkill />
-                  <CardSkill />
-                  <CardSkill />
-                  <CardSkill />
+                  {data.results.WorkerSkills &&
+                    data.results.WorkerSkills.map((item) => (
+                      <CardSkill skill={item.Skill.name} key={item.id} />
+                    ))}
                 </div>
               </div>
               <div className="flex flex-col space-y-2 pb-10">
                 <div className="flex items-center text-xl text-gray-400">
                   <FiMail className="mr-4" />
-              Louistommo@gmail.com
+                  {data.results.email}
                 </div>
                 <div className="flex items-center text-xl space-x-4 text-gray-400">
                   <FaInstagram className="mr-4" />
-              @Louist91
+                  {data.results.instagram}
                 </div>
                 <div className="flex items-center text-xl space-x-4 text-gray-400">
                   <FaGithub className="mr-4" />
-              @Louistommo
+                  {data.results.github}
                 </div>
                 <div className="flex items-center text-xl space-x-4 text-gray-400">
                   <FaLinkedin className="mr-4" />
-              @Louistommo91
+                  {data.results.linkedin}
                 </div>
               </div>
             </section>
@@ -112,12 +141,20 @@ function Profile() {
                   toastPortfolio ? "grid grid-cols-3 gap-4 py-6" : "hidden"
                 }
               >
-                <CardPortfolio />
+                {data.results.Portofolios &&
+                  data.results.Portofolios.map((item) => (
+                    <CardPortfolio data={item} key={item.id} />
+                  ))}
               </div>
               <div
-                className={toastWorkExo ? "grid grid-cols-1 gap-8 py-6" : "hidden"}
+                className={
+                  toastWorkExo ? "grid grid-cols-1 gap-8 py-6" : "hidden"
+                }
               >
-                <CardWorkerExp />
+                {data.results.WorkExperiences &&
+                  data.results.WorkExperiences.map((item) => (
+                    <CardWorkerExp data={item} key={item.id} />
+                  ))}
               </div>
             </section>
           </section>
@@ -131,41 +168,40 @@ function Profile() {
             <h4>Web Developer</h4>
             <span className="flex items-center text-gray-400">
               <FaMapMarkerAlt />
-            Purwokerto, Jawa Tengah
+              Purwokerto, Jawa Tengah
             </span>
             <p className="text-gray-400">Freelancer</p>
           </div>
           <div>
             <p className="text-gray-400 leading-relaxed text-center max-w-md">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
-                erat orci, mollis nec gravida sed, ornare quis urna. Curabitur eu
-                lacus fringilla, vestibulum risus at.
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              Vestibulum erat orci, mollis nec gravida sed, ornare quis urna.
+              Curabitur eu lacus fringilla, vestibulum risus at.
             </p>
           </div>
           <button className="text-white bg-current-purple text-xl py-2 px-32 rounded-md">
-              Edit Profile
+            Edit Profile
           </button>
           <div className="flex flex-col space-y-4 pb-10">
             <div className="flex items-center text-xl text-gray-400">
               <FiMail className="mr-4" />
-            Louistommo@gmail.com
+              Louistommo@gmail.com
             </div>
             <div className="flex items-center text-xl space-x-4 text-gray-400">
               <FaInstagram className="mr-4" />
-            @Louist91
+              @Louist91
             </div>
             <div className="flex items-center text-xl space-x-4 text-gray-400">
               <FaGithub className="mr-4" />
-            @Louistommo
+              @Louistommo
             </div>
             <div className="flex items-center text-xl space-x-4 text-gray-400">
               <FaLinkedin className="mr-4" />
-            @Louistommo91
+              @Louistommo91
             </div>
           </div>
         </section>
       )}
-      
     </Layout>
   );
 }

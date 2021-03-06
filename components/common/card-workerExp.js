@@ -1,23 +1,28 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 
-function CardWorkerExp() {
+function CardWorkerExp({data}) {
+  const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
   return (
     <div className="flex space-x-6">
       <div>
-        <img src="../images/tokped.png" className="w-full max-h-full" />
+        <img
+          src={
+            data.Company.photo
+              ? NEXT_PUBLIC_API_URL_IMAGE + data.Company.photo
+              : "../images/tokped.png"
+          }
+          className="w-24 h-24"
+        />
       </div>
       <div className="col-span-4 flex flex-col space-y-1 max-w-lg">
-        <h1 className="font-semibold text-lg">Louis Tomlison</h1>
-        <p className="text-gray-400">Web Developer</p>
+        <h1 className="font-semibold text-lg">{data.Company.name}</h1>
+        <p className="text-gray-400">{data.position}</p>
         <span className="flex items-center text-gray-400">
-          July 2019 - January 2020 Lorem Ipsum &nbsp; 6 months
+          {data.startAt} - {data.finishAt} &nbsp; 6 months
         </span>
         <div>
-          <p className="leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
-            erat orci, mollis nec gravida sed, ornare quis urna. Curabitur eu
-            lacus fringilla, vestibulum risus at.
-          </p>
+          <p className="leading-relaxed">{data.description}</p>
         </div>
       </div>
     </div>

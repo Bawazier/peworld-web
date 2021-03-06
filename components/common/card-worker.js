@@ -4,7 +4,7 @@ import React from "react";
 import CardSkill from "./card-skill";
 import { FaMapMarkerAlt } from "react-icons/fa";
 
-function CardWorker({data}) {
+function CardWorker({data, getDetailUser}) {
   const { NEXT_PUBLIC_API_URL_IMAGE} = process.env;
   return (
     <div className="grid grid-cols-7 py-6">
@@ -34,7 +34,10 @@ function CardWorker({data}) {
         </div>
       </div>
       <div className="flex items-center justify-center">
-        <button className="text-white bg-current-purple text-xl py-2 px-4 rounded-md">
+        <button
+          onClick={getDetailUser}
+          className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
+        >
           Lihat Profile
         </button>
       </div>

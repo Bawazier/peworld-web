@@ -5,11 +5,12 @@ import CardWorker from "../../components/common/card-worker";
 import Pagination from "../../components/common/pagination";
 // import Link from "next/link";
 import { FaSearch, FaSortDown } from "react-icons/fa";
-import {getHome} from "../../libs/api";
+import { getHome, getDetailsUser } from "../../libs/api";
 import {QueryClient, useQuery} from "react-query";
 import { dehydrate } from "react-query/hydration";
 import { useCookies } from "react-cookie";
 import {parseCookies} from "../../helpers/parseCookies";
+import { useRouter } from "next/router";
 
 export async function getServerSideProps({ req }) {
   const cookies = await parseCookies(req);
@@ -33,12 +34,15 @@ export async function getServerSideProps({ req }) {
 }
 
 function Home() {
+  const router = useRouter();
+  const { roles } = router.query;
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState("createdAt");
   const [sortType, setSortType] = useState("ASC");
   const [search, setSearch] = useState("");
   const [searchVal, setSearchVal] = useState("");
   const [cookies] = useCookies(["user"]);
+  const queryClient = new QueryClient();
 
   const { data, isSuccess } = useQuery(
     ["worker", page, sort, searchVal],
@@ -84,6 +88,13 @@ function Home() {
   const onSearch = async () => {
     await setSearchVal(search);
     setSearch("");
+  };
+
+  const getDetailUser = async (id) => {
+    await queryClient.prefetchQuery(["worker-detail", id], () =>
+      getDetailsUser(cookies.user, id)
+    );
+    return router.push(`/${roles}/${id}`);
   };
 
   
@@ -140,7 +151,7 @@ function Home() {
         </button>
       </section>
       <section className="grid grid-cols-1 gap-8 divide-y divide-gray-200 bg-white rounded-md shadow-xl p-4 my-6">
-        {isSuccess && data?.results.map((item) => <CardWorker data={item} />)}
+        {isSuccess && data?.results.map((item) => <CardWorker data={item} getDetailUser={() => getDetailUser(item.id)} />)}
       </section>
       <section className="my-6">
         <Pagination
