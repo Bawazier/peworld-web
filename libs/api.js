@@ -37,8 +37,9 @@ export const getHome = async (
   return data;
 };
 
-export const getDetailsUser = (token, id) => {
-  return http(token).get(`/home/${id}`);
+export const getDetailsUser = async (token, id) => {
+  const {data} = await http(token).get(`/home/${id}`);
+  return data;
 };
 
 // * MESSAGE API
