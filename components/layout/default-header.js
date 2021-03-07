@@ -1,12 +1,25 @@
 /* eslint-disable react/prop-types */
 import React from "react";
 import Link from "next/link";
+import { useQuery } from "react-query";
 import { FiMail, FiBell } from "react-icons/fi";
 import { useCookies } from "react-cookie";
+import { useRouter } from "next/router";
+import { getProfile } from "../../libs/api";
 
 function DefaultHeader() {
+  const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
+  const router = useRouter();
+  const { roles } = router.query;
   const [cookies] = useCookies(["user"]);
-  console.log(cookies.user);
+
+  const { data } = useQuery(
+    [`${roles}-profile`],
+    () => getProfile(cookies.token),
+    {
+      enabled: false,
+    }
+  );
 
   return (
     <header className="shadow-xl">
@@ -14,7 +27,7 @@ function DefaultHeader() {
         <div>
           <img src="../icons/peworld-a.svg" className="w-36" />
         </div>
-        {cookies.user ? (
+        {cookies.token ? (
           <div className="hidden sm:flex items-center space-x-6">
             <Link href="/">
               <FiBell className="text-gray-500 text-2xl" />
@@ -22,9 +35,13 @@ function DefaultHeader() {
             <Link href="/">
               <FiMail className="text-gray-500 text-2xl" />
             </Link>
-            <Link href="/">
+            <Link href={`${roles}/${cookies.userId}`}>
               <img
-                src="../images/person.png"
+                src={
+                  data.results.photo
+                    ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
+                    : "../images/person.png"
+                }
                 className="w-8 h-8 rounded-full"
               />
             </Link>

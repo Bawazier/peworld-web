@@ -30,7 +30,7 @@ function CardWorker({data, getDetailUser}) {
             data.WorkerSkills.map((item, index) => {
               if (index < 3) return <CardSkill skill={item.Skill.name} />;
             })}
-          {data.WorkerSkills.length > 3 && <CardSkill skill="More..." />}
+          {data.WorkerSkills?.length > 3 && <CardSkill skill="More..." />}
         </div>
       </div>
       <div className="flex items-center justify-center">
