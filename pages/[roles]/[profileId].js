@@ -9,11 +9,35 @@ import {
   FaGithub,
   FaLinkedin,
 } from "react-icons/fa";
-import { useQuery } from "react-query";
+import { useQuery, QueryClient } from "react-query";
+import { dehydrate } from "react-query/hydration";
 import { getDetailsUser } from "../../libs/api";
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
+import { parseCookies } from "../../helpers/parseCookies";
+
+export async function getServerSideProps({ req, params}) {
+  const cookies = await parseCookies(req);
+  const queryClient = new QueryClient();
+  if (Object.keys(cookies).length === 0 && cookies.constructor === Object) {
+    return {
+      redirect: {
+        destination: `/${params.roles}/auth/login`,
+        permanent: false,
+      },
+    };
+  }
+  await queryClient.prefetchQuery(
+    [`${params.roles}-detail`, params.profileId],
+    () => getDetailsUser(cookies.token, params.profileId)
+  );
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
 
 function Profile() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
@@ -24,8 +48,8 @@ function Profile() {
   const [cookies] = useCookies(["user"]);
 
   const { data, isSuccess } = useQuery(
-    ["worker-detail", profileId],
-    () => getDetailsUser(cookies.user, profileId),
+    [`${roles}-detail`, profileId],
+    () => getDetailsUser(cookies.token, profileId),
     {
       keepPreviousData: true,
       refetchOnMount: false,
@@ -46,7 +70,7 @@ function Profile() {
 
   return (
     <Layout>
-      {roles === "worker" && isSuccess ? (
+      {cookies.role === "3" && profileId !== cookies.userId && isSuccess ? (
         <>
           <div className="z-0 absolute bg-current-purple w-screen h-80 top-25 left-0"></div>
           <section className="z-50 grid grid-cols-3 gap-8">
@@ -76,10 +100,10 @@ function Profile() {
               </div>
               <div className="flex flex-col space-y-2">
                 <button className="text-white bg-current-purple text-xl py-2 px-4 rounded-md">
-                  Hire
+                  {profileId === cookies.userId ? "Edit Profile" : "Hire"}
                 </button>
                 <button
-                  onClick={() => router.push(`/${roles}`)}
+                  onClick={() => router.back()}
                   className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
                 >
                   Kembali
@@ -159,49 +183,53 @@ function Profile() {
             </section>
           </section>
         </>
-      ) : (
+      ) : isSuccess ? (
         <section className="relative bg-white flex flex-col items-center justify-center space-y-8 rounded-md rounded-2xl py-20 px-8 shadow-2xl my-10">
           <div className="z-0 absolute bg-current-purple w-full h-48 top-0 left-0 rounded-t-md"></div>
           <div className="z-50 flex flex-col items-center justify-center space-y-2">
-            <img src="../images/person.png" className="w-50 h-50" />
-            <h1 className="font-semibold text-xl">Louis Tomlinson</h1>
-            <h4>Web Developer</h4>
+            <img
+              src={
+                data.results.photo
+                  ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
+                  : "../images/person.png"
+              }
+              className="w-32 h-32 rounded-full"
+            />
+            <h1 className="font-semibold text-xl">{data.results.name}</h1>
+            <h4>{data.results.jobTitle}</h4>
             <span className="flex items-center text-gray-400">
-              <FaMapMarkerAlt />
-              Purwokerto, Jawa Tengah
+              {data.results.address && <FaMapMarkerAlt />}
+              {data.results.address}
             </span>
-            <p className="text-gray-400">Freelancer</p>
           </div>
           <div>
             <p className="text-gray-400 leading-relaxed text-center max-w-md">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              Vestibulum erat orci, mollis nec gravida sed, ornare quis urna.
-              Curabitur eu lacus fringilla, vestibulum risus at.
+              {data.results.bio}
             </p>
           </div>
-          <button className="text-white bg-current-purple text-xl py-2 px-32 rounded-md">
-            Edit Profile
+          <button onClick={profileId === cookies.userId ? () => router.push(`/${roles}/edit-profile`) : () => router.push(`/${roles}/hire`)} className="text-white bg-current-purple text-xl py-2 px-32 rounded-md">
+            {profileId === cookies.userId ? "Edit Profile" : "Info"}
           </button>
           <div className="flex flex-col space-y-4 pb-10">
             <div className="flex items-center text-xl text-gray-400">
               <FiMail className="mr-4" />
-              Louistommo@gmail.com
+              {data.results.email}
             </div>
             <div className="flex items-center text-xl space-x-4 text-gray-400">
               <FaInstagram className="mr-4" />
-              @Louist91
+              {data.results.instagram}
             </div>
             <div className="flex items-center text-xl space-x-4 text-gray-400">
               <FaGithub className="mr-4" />
-              @Louistommo
+              {data.results.github}
             </div>
             <div className="flex items-center text-xl space-x-4 text-gray-400">
               <FaLinkedin className="mr-4" />
-              @Louistommo91
+              {data.results.linkedin}
             </div>
           </div>
         </section>
-      )}
+      ) : null}
     </Layout>
   );
 }

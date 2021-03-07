@@ -5,14 +5,14 @@ import CardWorker from "../../components/common/card-worker";
 import Pagination from "../../components/common/pagination";
 // import Link from "next/link";
 import { FaSearch, FaSortDown } from "react-icons/fa";
-import { getHome, getDetailsUser } from "../../libs/api";
+import { getHome, getProfile } from "../../libs/api";
 import {QueryClient, useQuery} from "react-query";
 import { dehydrate } from "react-query/hydration";
 import { useCookies } from "react-cookie";
 import {parseCookies} from "../../helpers/parseCookies";
 import { useRouter } from "next/router";
 
-export async function getServerSideProps({ req }) {
+export async function getServerSideProps({ req, params }) {
   const cookies = await parseCookies(req);
   const queryClient = new QueryClient();
   if (Object.keys(cookies).length === 0 && cookies.constructor === Object) {
@@ -23,8 +23,15 @@ export async function getServerSideProps({ req }) {
       },
     };
   }
-  await queryClient.prefetchQuery(["worker", 1, "createdAt", ""], () =>
-    getHome(cookies.user)
+  await queryClient.prefetchQuery([`${params.roles}`, 1, "createdAt", ""], () =>
+    getHome(cookies.token)
+  );
+  await queryClient.prefetchQuery(
+    [`${params.roles}-profile`],
+    () => getProfile(cookies.token),
+    {
+      cacheTime: Infinity,
+    }
   );
   return {
     props: {
@@ -42,11 +49,10 @@ function Home() {
   const [search, setSearch] = useState("");
   const [searchVal, setSearchVal] = useState("");
   const [cookies] = useCookies(["user"]);
-  const queryClient = new QueryClient();
 
   const { data, isSuccess } = useQuery(
-    ["worker", page, sort, searchVal],
-    () => getHome(cookies.user, page, sort, sortType, searchVal),
+    [`${roles}`, page, sort, searchVal],
+    () => getHome(cookies.token, page, sort, sortType, searchVal),
     {
       keepPreviousData: true,
       refetchOnMount: false,
@@ -91,9 +97,6 @@ function Home() {
   };
 
   const getDetailUser = async (id) => {
-    await queryClient.prefetchQuery(["worker-detail", id], () =>
-      getDetailsUser(cookies.user, id)
-    );
     return router.push(`/${roles}/${id}`);
   };
 
@@ -116,27 +119,27 @@ function Home() {
           <i className="bg-transparent" aria-hidden={true}>
             <FaSortDown className="text-gray-600 text-3xl" />
           </i>
-          <select className="w-full bg-transparent appearance-none text-sm font-bold">
+          <select defaultValue="name" className="w-full bg-transparent appearance-none text-sm font-bold">
             <option onClick={sortByCreatedAt} selected>
               Sort
             </option>
             <option onClick={sortByName}>By Nama</option>
             <option
               onClick={sortBySkill}
-              disabled={isSuccess && data.results.WorkerSkills === null}
+              disabled={isSuccess && data.results.Company}
             >
               By Skill
             </option>
             <option onClick={() => setSort("address")}>By Lokasi</option>
             <option
               onClick={sortByJobTitle}
-              disabled={isSuccess && data.results.WorkerSkills === null}
+              disabled={isSuccess && data.results.Company}
             >
               By freelance
             </option>
             <option
               onClick={sortByJobTitle}
-              disabled={isSuccess && data.results.WorkerSkills === null}
+              disabled={isSuccess && data.results.Company}
             >
               By fulltime
             </option>

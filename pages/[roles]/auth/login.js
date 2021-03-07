@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "../../../components/layout/auth-layout";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -8,11 +8,17 @@ import { login } from "../../../libs/api";
 import { useMutation } from "react-query";
 import Loading from "../../../components/handle/onLoading";
 import { useCookies } from "react-cookie";
+import jwt_decode from "jwt-decode";
 
 function Login() {
   const router = useRouter();
   const [cookies, setCookie] = useCookies(["user"]);
   const { roles } = router.query;
+
+  useEffect(() => {
+    // Prefetch the dashboard page
+    router.prefetch(`/${roles}`);
+  }, []);
 
   const schema = Yup.object().shape({
     email: Yup.string()
@@ -27,7 +33,18 @@ function Login() {
     (data) => login(data),
     {
       onSuccess: async ({ data }) => {
-        setCookie("user", data.token, {
+        const { roleId, id } = jwt_decode(data.token);
+        setCookie("token", data.token, {
+          path: "/",
+          maxAge: 3600, // Expires after 1hr
+          sameSite: true,
+        });
+        setCookie("role", roleId, {
+          path: "/",
+          maxAge: 3600, // Expires after 1hr
+          sameSite: true,
+        });
+        setCookie("userId", id, {
           path: "/",
           maxAge: 3600, // Expires after 1hr
           sameSite: true,
@@ -113,7 +130,7 @@ function Login() {
             <div className="text-center font-sans">
               <span>
                 Anda belum punya akun?{" "}
-                  <Link href={roles === "worker" ? "/worker/auth/signup" : "/recruiter/auth/signup"}>
+                <Link href={roles === "worker" ? "/worker/auth/signup" : "/recruiter/auth/signup"}>
                   <a className="text-yellow-500">Daftar disini</a>
                 </Link>
               </span>
