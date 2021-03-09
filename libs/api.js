@@ -33,9 +33,7 @@ export const getHome = async (
   return data;
 };
 export const getDetailsUser = async (token, id) => {
-  const {data: dataUser} = await http(token).get(`/home/${id}`);
-  const { data: dataCompany } = await http(token).get("recruiter/company/self");
-  const data = {...dataUser.results, ...dataCompany.results};
+  const {data} = await http(token).get(`/home/${id}`);
   return data;
 };
 
@@ -71,11 +69,13 @@ export const updateImageCompany = (token, data) => {
 export const getRecipientProfile = (token, id) => {
   return http(token).get("home/" + id);
 };
-export const getAllList = (token, page) => {
-  return http(token).get("message/list/person?" + qs.stringify({page}));
+export const getAllList = async (token) => {
+  const {data} = await http(token).get("message/list/person?limit=30");
+  return data;
 };
-export const getPrivateMessage = (token, id, page) => {
-  return http(token).get("message/list/chat/" + id + "?" + qs.stringify({page}));
+export const getPrivateMessage = async (token, id, page) => {
+  const {data} = await http(token).get(`message/list/chat/${id}?page=${page}`);
+  return data;
 };
 export const sendChat = (token, id, message) => {
   return http(token).post("message/chat/" + id, qs.stringify({ message }));
