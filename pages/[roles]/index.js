@@ -5,7 +5,7 @@ import CardWorker from "../../components/common/card-worker";
 import Pagination from "../../components/common/pagination";
 // import Link from "next/link";
 import { FaSearch, FaSortDown } from "react-icons/fa";
-import { getHome, getProfile } from "../../libs/api";
+import { getHome, getDetailsUser } from "../../libs/api";
 import {QueryClient, useQuery} from "react-query";
 import { dehydrate } from "react-query/hydration";
 import { useCookies } from "react-cookie";
@@ -28,7 +28,7 @@ export async function getServerSideProps({ req, params }) {
   );
   await queryClient.prefetchQuery(
     [`${params.roles}-profile`],
-    () => getProfile(cookies.token),
+    () => getDetailsUser(cookies.token, parseInt(cookies.userId)),
     {
       cacheTime: Infinity,
     }

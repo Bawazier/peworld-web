@@ -13,7 +13,9 @@ function CardWorker({data, getDetailUser}) {
           src={
             data.photo
               ? NEXT_PUBLIC_API_URL_IMAGE + data.photo
-              : "../images/person.png"
+              : data.Company.photo
+                ? NEXT_PUBLIC_API_URL_IMAGE + data.Company.photo
+                : "../images/person.png"
           }
           className="w-24 h-24 rounded-full"
         />

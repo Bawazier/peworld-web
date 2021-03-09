@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 import { FiMail, FiBell } from "react-icons/fi";
 import { useCookies } from "react-cookie";
 import { useRouter } from "next/router";
-import { getProfile } from "../../libs/api";
+import { getDetailsUser } from "../../libs/api";
 
 function DefaultHeader() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
@@ -13,9 +13,9 @@ function DefaultHeader() {
   const { roles } = router.query;
   const [cookies] = useCookies(["user"]);
 
-  const { data } = useQuery(
+  const { data, isSuccess } = useQuery(
     [`${roles}-profile`],
-    () => getProfile(cookies.token),
+    () => getDetailsUser(cookies.token, parseInt(cookies.id)),
     {
       enabled: false,
     }
@@ -38,9 +38,11 @@ function DefaultHeader() {
             <Link href={`${roles}/${cookies.userId}`}>
               <img
                 src={
-                  data.results.photo
+                  isSuccess && data?.results.photo
                     ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
-                    : "../images/person.png"
+                    : isSuccess && data?.results.Company
+                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                      : "../images/person.png"
                 }
                 className="w-8 h-8 rounded-full"
               />

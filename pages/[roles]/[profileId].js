@@ -70,7 +70,7 @@ function Profile() {
 
   return (
     <Layout>
-      {cookies.role === "3" && profileId !== cookies.userId && isSuccess ? (
+      {cookies.role === "3" && isSuccess ? (
         <>
           <div className="z-0 absolute bg-current-purple w-screen h-80 top-25 left-0"></div>
           <section className="z-50 grid grid-cols-3 gap-8">
@@ -80,7 +80,9 @@ function Profile() {
                   src={
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
-                      : "../images/person.png"
+                      : data.results.Company.photo
+                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                        : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
@@ -207,7 +209,14 @@ function Profile() {
               {data.results.bio}
             </p>
           </div>
-          <button onClick={profileId === cookies.userId ? () => router.push(`/${roles}/edit-profile`) : () => router.push(`/${roles}/hire`)} className="text-white bg-current-purple text-xl py-2 px-32 rounded-md">
+          <button
+            onClick={
+              profileId === cookies.userId
+                ? () => router.push(`/${roles}/edit-profile`)
+                : () => router.push(`/${roles}/hire`)
+            }
+            className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
+          >
             {profileId === cookies.userId ? "Edit Profile" : "Info"}
           </button>
           <div className="flex flex-col space-y-4 pb-10">

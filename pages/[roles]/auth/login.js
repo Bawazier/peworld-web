@@ -34,17 +34,17 @@ function Login() {
     {
       onSuccess: async ({ data }) => {
         const { roleId, id } = jwt_decode(data.token);
-        setCookie("token", data.token, {
+        await setCookie("token", data.token, {
           path: "/",
           maxAge: 3600, // Expires after 1hr
           sameSite: true,
         });
-        setCookie("role", roleId, {
+        await setCookie("role", roleId, {
           path: "/",
           maxAge: 3600, // Expires after 1hr
           sameSite: true,
         });
-        setCookie("userId", id, {
+        await setCookie("userId", id, {
           path: "/",
           maxAge: 3600, // Expires after 1hr
           sameSite: true,
@@ -63,9 +63,10 @@ function Login() {
         }}
         validationSchema={schema}
         onSubmit={(values) => mutate(values, {
-          onSuccess: () => {
+          onSuccess: ({data}) => {
             console.log(cookies);
-            return router.push(`/${roles}`);
+            const { roleId } = jwt_decode(data.token);
+            return router.push(roleId == "2" ? "/worker" : "/recruiter");
           }
         })}
       >

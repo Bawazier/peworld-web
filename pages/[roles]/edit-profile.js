@@ -4,9 +4,11 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
-  getProfile,
+  getDetailsUser,
   updateProfile,
   updateImageProfile,
+  updateCompany,
+  updateImageCompany,
 } from "../../libs/api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useRouter } from "next/router";
@@ -21,51 +23,32 @@ function EditProfile() {
 
   const { data, isSuccess } = useQuery(
     [`${roles}-profile`],
-    () => getProfile(cookies.token),
+    () => getDetailsUser(cookies.token, parseInt(cookies.id)),
     {
-      keepPreviousData: true,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      retry: 2,
-      cacheTime: 1000 * 60 * 60,
+      enabled: false,
     }
   );
 
-  const { mutate } = useMutation((data) => updateProfile(cookies.token, data));
+  const { mutate: mutateCompany } = useMutation((data) =>
+    updateCompany(cookies.token, data)
+  );
+  const { mutate: mutateProfile } = useMutation((data) => updateProfile(cookies.token, data));
+  
 
-  const { mutate: mutateImage } = useMutation(
+  const { mutate: mutateImageProfile } = useMutation(
     (data) => updateImageProfile(cookies.token, data),
     {
-      onMutate: async (newTodo) => {
-        // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-        console.log(newTodo);
-        // await queryClient.cancelQueries([`${roles}-profile`]);
-
-        // Snapshot the previous value
-
-        const previousTodo = queryClient.getQueryData([`${roles}-profile`]);
-
-        // Optimistically update to the new value
-
-        // queryClient.setQueryData([`${roles}-profile`], newTodo);
-
-        // Return a context with the previous and new todo
-        console.log(previousTodo);
-
-        return { previousTodo, newTodo };
-      },
-      // If the mutation fails, use the context we returned above
-
-      onError: (err, newTodo, context) => {
-        console.log(context);
-        queryClient.setQueryData(
-          [`${roles}-profile`],
-
-          context.previousTodo
-        );
-      },
       // Always refetch after error or success:
+      onSettled: () => {
+        queryClient.invalidateQueries([`${roles}-profile`]);
+      },
+    }
+  );
 
+  const { mutate: mutateImageCompany } = useMutation(
+    (data) => updateImageCompany(cookies.token, data),
+    {
+      // Always refetch after error or success:
       onSettled: () => {
         queryClient.invalidateQueries([`${roles}-profile`]);
       },
@@ -81,9 +64,8 @@ function EditProfile() {
     email: Yup.string().email("Masukkan alamat email dengan benar"),
     instagram: Yup.string(),
     phoneNumber: Yup.string()
-      .min(10, "Minimal karakter no handphone adalah 10")
-      .max(12, "Maksimal karakter no handphone adalah 12")
-      .required("No handphone dibutuhkan"),
+      .min(11, "Minimal karakter no handphone adalah 11")
+      .max(12, "Maksimal karakter no handphone adalah 12"),
     github: Yup.string(),
     linkedin: Yup.string(),
   });
@@ -123,7 +105,32 @@ function EditProfile() {
             .slice(0, -1)
           : "",
     },
-    onSubmit: (values) => mutate(values),
+    onSubmit: (values) => {
+      const profileValues = {
+        name: values.name,
+        jobTitle: values.jobTitle,
+        address: values.address,
+        company: values.company,
+        bio: values.bio,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        instagram: `https://www.instagram.com/${values.instagram}/`,
+        linkedin: `https://www.linkedin.com/in/${values.linkedin}/`,
+        github: `https://github.com/${values.github}`,
+      };
+      const companyValues = {
+        name: values.company,
+        field: values.jobTitle,
+        city: values.address,
+      };
+      if(cookies.role === "2"){
+        return mutateProfile(profileValues);
+      } else if(cookies.role === "3"){
+        return mutateProfile(profileValues, {
+          onSuccess: () => mutateCompany(companyValues),
+        });
+      }
+    },
   });
 
   const hiddenFileInput = React.useRef(null);
@@ -143,7 +150,12 @@ function EditProfile() {
     } else {
       const imageData = new FormData();
       imageData.append("photo", fileUploaded);
-      await mutateImage(imageData);
+      if (cookies.role === "2") {
+        await mutateImageProfile(imageData);
+      }
+      if(cookies.role === "3"){
+        await mutateImageCompany(imageData);
+      }
     }
   };
 
@@ -151,7 +163,7 @@ function EditProfile() {
 
   return (
     <Layout>
-      {cookies.role === "2" && isSuccess ? (
+      {isSuccess ? (
         <>
           <div className="z-0 absolute bg-current-purple w-screen h-80 top-25 left-0"></div>
           <section className="z-50 grid grid-cols-3 gap-8">
@@ -161,7 +173,9 @@ function EditProfile() {
                   src={
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
-                      : "../images/person.png"
+                      : data.results.Company
+                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                        : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
@@ -230,56 +244,117 @@ function EditProfile() {
                     </span>
                   )}
                 </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">Job desk</label>
-                  <input
-                    placeholder="Masukan job desk"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="jobTitle"
-                    value={values.jobTitle}
-                  />
-                  {touched.jobTitle && errors.jobTitle && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.jobTitle}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">Domisili</label>
-                  <input
-                    placeholder="Masukan domisili"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="address"
-                    value={values.address}
-                  />
-                  {touched.address && errors.address && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.address}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">
-                    Tempat Kerja
-                  </label>
-                  <input
-                    placeholder="Masukan tempat kerja"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="company"
-                    value={values.company}
-                  />
-                  {touched.company && errors.company && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.company}
-                    </span>
-                  )}
-                </div>
+                {cookies.role === "2" ? (
+                  <>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">
+                        Job desk
+                      </label>
+                      <input
+                        placeholder="Masukan job desk"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="jobTitle"
+                        value={values.jobTitle}
+                      />
+                      {touched.jobTitle && errors.jobTitle && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.jobTitle}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">
+                        Domisili
+                      </label>
+                      <input
+                        placeholder="Masukan domisili"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="address"
+                        value={values.address}
+                      />
+                      {touched.address && errors.address && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.address}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">
+                        Tempat Kerja
+                      </label>
+                      <input
+                        placeholder="Masukan tempat kerja"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="company"
+                        value={values.company}
+                      />
+                      {touched.company && errors.company && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.company}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">
+                        Nama Perusahaan
+                      </label>
+                      <input
+                        placeholder="Masukan nama perusahaan"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="company"
+                        value={values.company}
+                      />
+                      {touched.company && errors.company && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.company}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">Bidang</label>
+                      <input
+                        placeholder="Masukan bidang perusahaan ex : Financial"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="jobTitle"
+                        value={values.jobTitle}
+                      />
+                      {touched.jobTitle && errors.jobTitle && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.jobTitle}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">Kota</label>
+                      <input
+                        placeholder="Masukan kota"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="address"
+                        value={values.address}
+                      />
+                      {touched.address && errors.address && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.address}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
                 <div className="flex flex-col space-y-2">
                   <label className="font-sans text-gray-600">
                     Deskripsi singkat
