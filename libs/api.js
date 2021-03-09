@@ -33,20 +33,38 @@ export const getHome = async (
   return data;
 };
 export const getDetailsUser = async (token, id) => {
-  const {data} = await http(token).get(`/home/${id}`);
+  const {data: dataUser} = await http(token).get(`/home/${id}`);
+  const { data: dataCompany } = await http(token).get("recruiter/company/self");
+  const data = {...dataUser.results, ...dataCompany.results};
   return data;
 };
 
 // * PROFILE WORKER API
-export const getProfile = async (token) => {
+export const getProfileWorker = async (token) => {
   const { data } = await http(token).get("worker/account");
+  return data;
+};
+export const getProfileRecruiter = async (token) => {
+  const { data } = await http(token).get("recruiter/account");
   return data;
 };
 export const updateProfile = (token, data) => {
   return http(token).patch("worker/account", qs.stringify(data));
 };
-export const updateImageProfile = async (token, data) => {
+export const updateImageProfile = (token, data) => {
   return http(token).patch("worker/account", data);
+};
+
+// * PROFILE COMPANY API
+export const getCompany = async (token) => {
+  const { data } = await http(token).get("recruiter/company/self");
+  return data;
+};
+export const updateCompany = (token, data) => {
+  return http(token).patch("recruiter/company", qs.stringify(data));
+};
+export const updateImageCompany = (token, data) => {
+  return http(token).patch("recruiter/company", data);
 };
 
 // * MESSAGE API
