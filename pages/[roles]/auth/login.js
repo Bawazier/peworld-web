@@ -32,6 +32,7 @@ function Login() {
   const { mutate, isLoading, isError, reset, error } = useMutation(
     (data) => login(data),
     {
+      mutationKey: "login",
       onSuccess: async ({ data }) => {
         const { roleId, id } = jwt_decode(data.token);
         await setCookie("token", data.token, {

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Layout from "../../components/layout";
-import CardSkill from "../../components/common/card-skill";
-import CardWorkerExp from "../../components/common/card-workerExp";
-import CardPortfolio from "../../components/common/card-portfolio";
+import Layout from "../../../components/layout";
+import CardSkill from "../../../components/common/card-skill";
+import CardWorkerExp from "../../../components/common/card-workerExp";
+import CardPortfolio from "../../../components/common/card-portfolio";
 import {
   FaMapMarkerAlt,
   FaInstagram,
@@ -11,11 +11,11 @@ import {
 } from "react-icons/fa";
 import { useQuery, QueryClient } from "react-query";
 import { dehydrate } from "react-query/hydration";
-import { getDetailsUser } from "../../libs/api";
+import { getDetailsUser } from "../../../libs/api";
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
-import { parseCookies } from "../../helpers/parseCookies";
+import { parseCookies } from "../../../helpers/parseCookies";
 
 export async function getServerSideProps({ req, params}) {
   const cookies = await parseCookies(req);
@@ -80,7 +80,7 @@ function Profile() {
                   src={
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
-                      : data.results.Company.photo
+                      : data.results.Company?.photo
                         ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
                         : "../images/person.png"
                   }
@@ -101,7 +101,14 @@ function Profile() {
                 </p>
               </div>
               <div className="flex flex-col space-y-2">
-                <button className="text-white bg-current-purple text-xl py-2 px-4 rounded-md">
+                <button
+                  onClick={
+                    profileId === cookies.userId
+                      ? () => router.push(`/${roles}/edit-profile`)
+                      : () => router.push(`/${roles}/${profileId}/hire`)
+                  }
+                  className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
+                >
                   {profileId === cookies.userId ? "Edit Profile" : "Hire"}
                 </button>
                 <button

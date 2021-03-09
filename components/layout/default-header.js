@@ -32,7 +32,7 @@ function DefaultHeader() {
             <Link href="/">
               <FiBell className="text-gray-500 text-2xl" />
             </Link>
-            <Link href="/">
+            <Link href={`${roles}/message`}>
               <FiMail className="text-gray-500 text-2xl" />
             </Link>
             <Link href={`${roles}/${cookies.userId}`}>

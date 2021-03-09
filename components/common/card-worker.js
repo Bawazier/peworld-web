@@ -13,7 +13,7 @@ function CardWorker({data, getDetailUser}) {
           src={
             data.photo
               ? NEXT_PUBLIC_API_URL_IMAGE + data.photo
-              : data.Company.photo
+              : data.Company?.photo
                 ? NEXT_PUBLIC_API_URL_IMAGE + data.Company.photo
                 : "../images/person.png"
           }
