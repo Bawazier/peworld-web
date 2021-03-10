@@ -3,14 +3,15 @@ import Layout from "../../components/layout";
 import CardSkill from "../../components/common/card-skill";
 import CardWorkerExp from "../../components/common/card-workerExp";
 import CardPortfolio from "../../components/common/card-portfolio";
+import FormSkill from "../../components/common/form-skill";
 import {
   FaMapMarkerAlt,
   FaInstagram,
   FaGithub,
   FaLinkedin,
 } from "react-icons/fa";
-import { useQuery } from "react-query";
-import { getDetailsUser } from "../../libs/api";
+import { useQuery, useMutation, useQueryClient } from "react-query";
+import { getDetailsUser, postSkill, deleteSkill } from "../../libs/api";
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
@@ -18,6 +19,7 @@ import { useCookies } from "react-cookie";
 function Profile() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { roles } = router.query;
   const [toastPortfolio, setToastPortfolio] = useState(true);
   const [toastWorkExo, setToastWorkExo] = useState(false);
@@ -40,6 +42,27 @@ function Profile() {
     setToastPortfolio(false);
   };
 
+  const { mutate: mutatePostSkill } = useMutation(
+    (data) => postSkill(cookies.token, data),
+    {
+    // Always refetch after error or success:
+      onSettled: () => {
+        queryClient.invalidateQueries([`${roles}-profile`]);
+      },
+    }
+  );
+  const { mutate: mutateDeleteSkill } = useMutation(
+    (id) => deleteSkill(cookies.token, id),
+    {
+      // Always refetch after error or success:
+      onSettled: () => {
+        queryClient.invalidateQueries([`${roles}-profile`]);
+      },
+    }
+  );
+  const handleDeleteSkill = (id) => mutateDeleteSkill(id);
+  const handlePostSkill = (data) => mutatePostSkill(data);
+
   return (
     <Layout>
       {cookies.role === "2" && isSuccess ? (
@@ -53,8 +76,8 @@ function Profile() {
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
                       : data.results.Company?.photo
-                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
-                      : "../images/person.png"
+                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                        : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
@@ -94,11 +117,15 @@ function Profile() {
               </div>
               <div className="flex flex-col space-y-2">
                 <h1 className="font-semibold text-lg">Skill</h1>
-                <div className="grid grid-cols-3 gap-4">
-                  <CardSkill skill="+" />
+                <div className="flex space-x-4 space-y-4 flex-wrap">
+                  <FormSkill handleSubmitSkill={handlePostSkill} />
                   {data.results.WorkerSkills &&
                     data.results.WorkerSkills.map((item) => (
-                      <CardSkill skill={item.Skill.name} key={item.id} />
+                      <CardSkill
+                        skill={item.Skill.name}
+                        key={item.id}
+                        close={() => handleDeleteSkill(item.id)}
+                      />
                     ))}
                 </div>
               </div>

@@ -30,36 +30,38 @@ function DefaultHeader() {
         {cookies.token ? (
           <div className="hidden sm:flex items-center space-x-6">
             <Link href="/">
-              <FiBell className="text-gray-500 text-2xl" />
+              <FiBell className="text-gray-500 text-2xl cursor-pointer" />
             </Link>
-            <Link href={`${roles}/message`}>
-              <FiMail className="text-gray-500 text-2xl" />
-            </Link>
-            <Link href={`${roles}/${cookies.userId}`}>
-              <img
-                src={
-                  isSuccess && data?.results.photo
-                    ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
-                    : isSuccess && data?.results.Company
-                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
-                      : "../images/person.png"
-                }
-                className="w-8 h-8 rounded-full"
-              />
-            </Link>
+            <FiMail
+              className="text-gray-500 text-2xl cursor-pointer"
+              onClick={() => router.push(`${roles}/message`)}
+            />
+            <img
+              src={
+                isSuccess && data?.results.photo
+                  ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
+                  : isSuccess && data?.results.Company
+                    ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                    : "../images/person.png"
+              }
+              className="w-8 h-8 rounded-full cursor-pointer"
+              onClick={() => router.push(`${roles}/profile`)}
+            />
           </div>
         ) : (
           <div className="hidden sm:flex space-x-6">
-            <Link href="/worker/auth/login">
-              <button className="font-sans border-2 border-current-purple text-current-purple rounded-md text-lg font-bold px-4 py-2">
-                Masuk
-              </button>
-            </Link>
-            <Link href="/worker/auth/signup">
-              <button className="font-sans bg-current-purple text-white rounded-md text-lg font-bold px-4 py-2">
-                Daftar
-              </button>
-            </Link>
+            <button
+              onClick={() => router.push("/worker/auth/login")}
+              className="font-sans border-2 border-current-purple text-current-purple rounded-md text-lg font-bold px-4 py-2"
+            >
+              Masuk
+            </button>
+            <button
+              onClick={() => router.push("/worker/auth/signup")}
+              className="font-sans bg-current-purple text-white rounded-md text-lg font-bold px-4 py-2"
+            >
+              Daftar
+            </button>
           </div>
         )}
       </div>
