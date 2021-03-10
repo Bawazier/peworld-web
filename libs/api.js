@@ -65,6 +65,36 @@ export const updateImageCompany = (token, data) => {
   return http(token).patch("recruiter/company", data);
 };
 
+// * PORTFOLIO API
+export const getPortfolioDetail = async (token, id) => {
+  const { data } = await http(token).get(`worker/portofolio/${id}`);
+  return data;
+};
+export const addPortfolio = (token, data) => {
+  return http(token).post("worker/portofolio", data);
+};
+export const updatePortfolio = (token, id, data) => {
+  return http(token).patch(`worker/portofolio/${id}`, data);
+};
+export const deletePortfolio = (token, id) => {
+  return http(token).delete(`worker/portofolio/${id}`);
+};
+
+// * WORKEXP API
+export const getWorkerExpDetail = async (token, id) => {
+  const { data } = await http(token).get("/worker/experience" + id);
+  return data;
+};
+export const addWorkerExp = (token, data) => {
+  return http(token).post("worker/experience", qs.stringify(data));
+};
+export const updateWorkerExp = (token, id, data) => {
+  return http(token).patch(`worker/experience/${id}`, qs.stringify(data));
+};
+export const deleteWorkerExp = (token, id) => {
+  return http(token).delete(`worker/experience/${id}`);
+};
+
 // * MESSAGE API
 export const getRecipientProfile = (token, id) => {
   return http(token).get("home/" + id);
