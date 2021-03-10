@@ -1,61 +1,33 @@
 import React, { useState } from "react";
-import Layout from "../../../components/layout";
-import CardSkill from "../../../components/common/card-skill";
-import CardWorkerExp from "../../../components/common/card-workerExp";
-import CardPortfolio from "../../../components/common/card-portfolio";
+import Layout from "../../components/layout";
+import CardSkill from "../../components/common/card-skill";
+import CardWorkerExp from "../../components/common/card-workerExp";
+import CardPortfolio from "../../components/common/card-portfolio";
 import {
   FaMapMarkerAlt,
   FaInstagram,
   FaGithub,
   FaLinkedin,
 } from "react-icons/fa";
-import { useQuery, QueryClient } from "react-query";
-import { dehydrate } from "react-query/hydration";
-import { getDetailsUser } from "../../../libs/api";
+import { useQuery } from "react-query";
+import { getDetailsUser } from "../../libs/api";
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
-import { parseCookies } from "../../../helpers/parseCookies";
-
-export async function getServerSideProps({ req, params}) {
-  const cookies = await parseCookies(req);
-  const queryClient = new QueryClient();
-  if (cookies.token === "undefined") {
-    return {
-      redirect: {
-        destination: `/${params.roles}/auth/login`,
-        permanent: false,
-      },
-    };
-  }
-  await queryClient.prefetchQuery(
-    [`${params.roles}-detail`, params.profileId],
-    () => getDetailsUser(cookies.token, params.profileId)
-  );
-  return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-    },
-  };
-}
 
 function Profile() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
   const router = useRouter();
-  const { roles, profileId } = router.query;
+  const { roles } = router.query;
   const [toastPortfolio, setToastPortfolio] = useState(true);
   const [toastWorkExo, setToastWorkExo] = useState(false);
-  const [cookies] = useCookies(["user"]);
+  const [cookies, removeCookie] = useCookies(["user"]);
 
   const { data, isSuccess } = useQuery(
-    [`${roles}-detail`, profileId],
-    () => getDetailsUser(cookies.token, profileId),
+    [`${roles}-profile`],
+    () => getDetailsUser(cookies.token, parseInt(cookies.userId)),
     {
-      keepPreviousData: true,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      retry: 2,
-      cacheTime: 1000 * 60,
+      enabled: false,
     }
   );
 
@@ -70,7 +42,7 @@ function Profile() {
 
   return (
     <Layout>
-      {cookies.role === "3" && isSuccess ? (
+      {cookies.role === "2" && isSuccess ? (
         <>
           <div className="z-0 absolute bg-current-purple w-screen h-80 top-25 left-0"></div>
           <section className="z-50 grid grid-cols-3 gap-8">
@@ -81,8 +53,8 @@ function Profile() {
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
                       : data.results.Company?.photo
-                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
-                        : "../images/person.png"
+                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                      : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
@@ -102,10 +74,10 @@ function Profile() {
               </div>
               <div className="flex flex-col space-y-2">
                 <button
-                  onClick={() => router.push(`/${roles}/${profileId}/hire`)}
+                  onClick={() => router.push(`/${roles}/edit-profile`)}
                   className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
                 >
-                  Hire
+                  Edit Profile
                 </button>
                 <button
                   onClick={() => router.back()}
@@ -113,10 +85,17 @@ function Profile() {
                 >
                   Kembali
                 </button>
+                <button
+                  onClick={() => removeCookie("token")}
+                  className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
+                >
+                  Keluar
+                </button>
               </div>
               <div className="flex flex-col space-y-2">
                 <h1 className="font-semibold text-lg">Skill</h1>
                 <div className="grid grid-cols-3 gap-4">
+                  <CardSkill skill="+" />
                   {data.results.WorkerSkills &&
                     data.results.WorkerSkills.map((item) => (
                       <CardSkill skill={item.Skill.name} key={item.id} />
@@ -197,6 +176,9 @@ function Profile() {
                   toastPortfolio ? "grid grid-cols-3 gap-4 py-6" : "hidden"
                 }
               >
+                <div className="w-full h-full flex items-center justify-center border-2">
+                  <h1 className="text-8xl font-black text-center">+</h1>
+                </div>
                 {data.results.Portofolios &&
                   data.results.Portofolios.map((item) => (
                     <CardPortfolio data={item} key={item.id} />
@@ -215,7 +197,7 @@ function Profile() {
             </section>
           </section>
         </>
-      ) : isSuccess ? (
+      ) : cookies.role === "3" && isSuccess ? (
         <section className="relative bg-white flex flex-col items-center justify-center space-y-8 rounded-md rounded-2xl py-20 px-8 shadow-2xl my-10">
           <div className="z-0 absolute bg-current-purple w-full h-48 top-0 left-0 rounded-t-md"></div>
           <div className="z-50 flex flex-col items-center justify-center space-y-2">
@@ -239,13 +221,12 @@ function Profile() {
               {data.results.bio}
             </p>
           </div>
-          {/* <button
-            onClick={() => router.push(`/${roles}/hire`)
-            }
+          <button
+            onClick={() => router.push(`/${roles}/edit-profile`)}
             className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
           >
-            {profileId === cookies.userId ? "Edit Profile" : "Info"}
-          </button> */}
+            Edit Profile
+          </button>
           <div className="flex space-x-4 pb-10 justify-around">
             <a
               href={data.results.email}
