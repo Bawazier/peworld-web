@@ -65,6 +65,18 @@ export const updateImageCompany = (token, data) => {
   return http(token).patch("recruiter/company", data);
 };
 
+// * SKILL API
+export const getSkill = async (token, search = "") => {
+  const { data } = await http(token).get(`/worker/skill/?search=${search}`);
+  return data;
+};
+export const postSkill = (token, data) => {
+  return http(token).post("/worker/list/skill", qs.stringify(data));
+};
+export const deleteSkill = (token, id) => {
+  return http(token).delete("/worker/delete/skill/" + id);
+};
+
 // * PORTFOLIO API
 export const getPortfolioDetail = async (token, id) => {
   const { data } = await http(token).get(`worker/portofolio/${id}`);
