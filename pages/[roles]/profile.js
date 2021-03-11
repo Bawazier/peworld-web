@@ -4,14 +4,22 @@ import CardSkill from "../../components/common/card-skill";
 import CardWorkerExp from "../../components/common/card-workerExp";
 import CardPortfolio from "../../components/common/card-portfolio";
 import FormSkill from "../../components/common/form-skill";
+import FormWorkerExp from "../../components/common/form-workerExp";
 import {
   FaMapMarkerAlt,
   FaInstagram,
   FaGithub,
   FaLinkedin,
+  FaPlusSquare,
 } from "react-icons/fa";
 import { useQuery, useMutation, useQueryClient } from "react-query";
-import { getDetailsUser, postSkill, deleteSkill } from "../../libs/api";
+import {
+  getDetailsUser,
+  postSkill,
+  deleteSkill,
+  addWorkerExp,
+  updateWorkerExp,
+} from "../../libs/api";
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
@@ -22,7 +30,9 @@ function Profile() {
   const queryClient = useQueryClient();
   const { roles } = router.query;
   const [toastPortfolio, setToastPortfolio] = useState(true);
-  const [toastWorkExo, setToastWorkExo] = useState(false);
+  const [toastWorkExp, setToastWorkExp] = useState(false);
+  const [addWorkExp, setAddWorkExp] = useState(false);
+  const [updateWorkExp, setUpdateWorkExp] = useState(false);
   const [cookies, removeCookie] = useCookies(["user"]);
 
   const { data, isSuccess } = useQuery(
@@ -35,10 +45,10 @@ function Profile() {
 
   const togglePortfolio = () => {
     setToastPortfolio(true);
-    setToastWorkExo(false);
+    setToastWorkExp(false);
   };
   const toggleWorkExp = () => {
-    setToastWorkExo(true);
+    setToastWorkExp(true);
     setToastPortfolio(false);
   };
 
@@ -63,6 +73,25 @@ function Profile() {
   const handleDeleteSkill = (id) => mutateDeleteSkill(id);
   const handlePostSkill = (data) => mutatePostSkill(data);
 
+  const { mutate: mutateAddWorkerExp } = useMutation(
+    (data) => addWorkerExp(cookies.token, data),
+    {
+      // Always refetch after error or success:
+      onSettled: () => {
+        queryClient.invalidateQueries([`${roles}-profile`]);
+      },
+    }
+  );
+  const { mutate: mutateUpdateWorkerExp } = useMutation(
+    (id, data) => updateWorkerExp(cookies.token, id, data),
+    {
+      // Always refetch after error or success:
+      onSettled: () => {
+        queryClient.invalidateQueries([`${roles}-profile`]);
+      },
+    }
+  );
+
   return (
     <Layout>
       {cookies.role === "2" && isSuccess ? (
@@ -76,8 +105,8 @@ function Profile() {
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
                       : data.results.Company?.photo
-                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
-                        : "../images/person.png"
+                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                      : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
@@ -190,7 +219,7 @@ function Profile() {
                 <button
                   onClick={toggleWorkExp}
                   className={
-                    toastWorkExo
+                    toastWorkExp
                       ? "text-2xl p-2 font-semibold border-b-2 border-current-purple"
                       : "text-2xl p-2 font-semibold text-gray-400"
                   }
@@ -208,18 +237,53 @@ function Profile() {
                 </div>
                 {data.results.Portofolios &&
                   data.results.Portofolios.map((item) => (
-                    <CardPortfolio data={item} key={item.id} />
+                    <button key={item.id}>
+                      <CardPortfolio data={item} />
+                    </button>
                   ))}
               </div>
               <div
                 className={
-                  toastWorkExo ? "grid grid-cols-1 gap-8 py-6" : "hidden"
+                  toastWorkExp ? "grid grid-cols-1 gap-8 py-6" : "hidden"
                 }
               >
-                {data.results.WorkExperiences &&
-                  data.results.WorkExperiences.map((item) => (
-                    <CardWorkerExp data={item} key={item.id} />
-                  ))}
+                <div className="flex flex-col space-y-4 overflow-auto overscroll-auto max-h-screen">
+                  {!addWorkExp && !updateWorkExp ? (
+                    data.results.WorkExperiences &&
+                    data.results.WorkExperiences.reverse().map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setUpdateWorkExp(item)}
+                        className="text-left"
+                      >
+                        <CardWorkerExp data={item} />
+                      </button>
+                    ))
+                  ) : addWorkExp && !updateWorkExp ? (
+                    <FormWorkerExp
+                      onCancel={() => setAddWorkExp(!addWorkExp)}
+                      addWorkerExp={mutateAddWorkerExp}
+                    />
+                  ) : (
+                    <FormWorkerExp
+                      onCancel={() => setUpdateWorkExp(false)}
+                      updateWorkerExp={mutateUpdateWorkerExp}
+                      data={updateWorkExp}
+                      toggleUpdate={true}
+                    />
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAddWorkExp(!addWorkExp)}
+                  className={
+                    addWorkExp || updateWorkExp
+                      ? "hidden"
+                      : "flex items-center justify-center text-white bg-yellow-500 p-4 rounded-2xl"
+                  }
+                >
+                  <FaPlusSquare className="text-6xl" />
+                </button>
               </div>
             </section>
           </section>
