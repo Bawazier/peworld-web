@@ -1,6 +1,7 @@
 import React from "react";
 import Layout from "../../components/layout";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { FiImage } from "react-icons/fi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -168,7 +169,7 @@ function EditProfile() {
           <div className="z-0 absolute bg-current-purple w-screen h-80 top-25 left-0"></div>
           <section className="z-50 grid grid-cols-3 gap-8">
             <section className="bg-white flex flex-col space-y-10 rounded-2xl py-4 px-8 shadow-2xl my-20">
-              <div className="flex flex-col items-center justify-center space-y-2">
+              <div className="flex items-center justify-center space-y-2 self-center relative w-32">
                 <img
                   src={
                     data.results.photo
@@ -182,13 +183,13 @@ function EditProfile() {
                 <button
                   onClick={handleClickImage}
                   type="submit"
-                  className="text-white bg-current-purple text-sm py-2 px-4 rounded-md"
+                  className="absolute inset-x-0 bottom-0 w-32 h-16 rounded-b-full flex items-center justify-center bg-gray-400 bg-opacity-50 hover:bg-opacity-100"
                 >
-                  Select Image
+                  <FiImage className="text-4xl text-black text-opacity-50 hover:text-opacity-100" />
                 </button>
                 <input
                   type="file"
-                  className="w-100 h-100 invisible"
+                  className="w-100 h-100 hidden"
                   ref={hiddenFileInput}
                   onChange={handleChangeImage}
                 />

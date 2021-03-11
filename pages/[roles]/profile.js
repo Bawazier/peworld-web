@@ -5,6 +5,7 @@ import CardWorkerExp from "../../components/common/card-workerExp";
 import CardPortfolio from "../../components/common/card-portfolio";
 import FormSkill from "../../components/common/form-skill";
 import FormWorkerExp from "../../components/common/form-workerExp";
+import FormPortfolio from "../../components/common/form-portfolio";
 import {
   FaMapMarkerAlt,
   FaInstagram,
@@ -19,6 +20,8 @@ import {
   deleteSkill,
   addWorkerExp,
   updateWorkerExp,
+  addPortfolio,
+  updatePortfolio,
 } from "../../libs/api";
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
@@ -33,6 +36,8 @@ function Profile() {
   const [toastWorkExp, setToastWorkExp] = useState(false);
   const [addWorkExp, setAddWorkExp] = useState(false);
   const [updateWorkExp, setUpdateWorkExp] = useState(false);
+  const [addPortofolio, setAddPortofolio] = useState(false);
+  const [updatePortofolio, setUpdatePortofolio] = useState(false);
   const [cookies, removeCookie] = useCookies(["user"]);
 
   const { data, isSuccess } = useQuery(
@@ -92,6 +97,25 @@ function Profile() {
     }
   );
 
+  const { mutate: mutateAddPortofolio } = useMutation(
+    (data) => addPortfolio(cookies.token, data),
+    {
+      // Always refetch after error or success:
+      onSettled: () => {
+        queryClient.invalidateQueries([`${roles}-profile`]);
+      },
+    }
+  );
+  const { mutate: mutateUpdatePortofolio } = useMutation(
+    (id, data) => updatePortfolio(cookies.token, id, data),
+    {
+      // Always refetch after error or success:
+      onSettled: () => {
+        queryClient.invalidateQueries([`${roles}-profile`]);
+      },
+    }
+  );
+
   return (
     <Layout>
       {cookies.role === "2" && isSuccess ? (
@@ -105,8 +129,8 @@ function Profile() {
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
                       : data.results.Company?.photo
-                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
-                      : "../images/person.png"
+                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                        : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
@@ -229,18 +253,44 @@ function Profile() {
               </div>
               <div
                 className={
-                  toastPortfolio ? "grid grid-cols-3 gap-4 py-6" : "hidden"
+                  toastPortfolio ? "grid grid-cols-1 gap-8 py-6" : "hidden"
                 }
               >
-                <div className="w-full h-full flex items-center justify-center border-2">
-                  <h1 className="text-8xl font-black text-center">+</h1>
-                </div>
-                {data.results.Portofolios &&
-                  data.results.Portofolios.map((item) => (
-                    <button key={item.id}>
-                      <CardPortfolio data={item} />
+                {!addPortofolio && !updatePortofolio ? (
+                  <div className="grid grid-cols-3 gap-4 py-6 overflow-auto overscroll-auto max-h-screen">
+                    {data.results.Portofolios &&
+                      data.results.Portofolios.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setUpdatePortofolio(item)}
+                        >
+                          <CardPortfolio data={item} />
+                        </button>
+                      ))}
+                    <button
+                      type="button"
+                      onClick={() => setAddPortofolio(!addPortofolio)}
+                      className="w-full h-full flex flex-col items-center justify-center space-y-2 items-center text-white bg-yellow-500"
+                    >
+                      <FaPlusSquare className="text-4xl w-full h-52" />
+                      <h1 className="w-full bg-white text-black p-2">
+                        Tambah Portofolio
+                      </h1>
                     </button>
-                  ))}
+                  </div>
+                ) : addPortofolio && !updatePortofolio ? (
+                  <FormPortfolio
+                    onCancel={() => setAddPortofolio(!addPortofolio)}
+                    addPortfolio={mutateAddPortofolio}
+                  />
+                ) : (
+                  <FormPortfolio
+                    onCancel={() => setUpdatePortofolio(false)}
+                    updatePortfolio={mutateUpdatePortofolio}
+                    data={updatePortofolio}
+                    toggleUpdate={true}
+                  />
+                )}
               </div>
               <div
                 className={
