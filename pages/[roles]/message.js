@@ -98,7 +98,7 @@ function Message() {
     if (messagesEndRef.current !== null) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [dataPrivateChat]);
+  }, [recipient]);
 
   return (
     <Layout>
@@ -182,7 +182,7 @@ function Message() {
         </section>
         <section className="bg-white col-span-2 flex flex-col space-y-4 rounded-2xl py-4 shadow-2xl my-20">
           <section className="flex flex-col space-y-2">
-            {recipient != undefined? (
+            {recipient != undefined ? (
               <div className="flex items-center space-x-2 px-8">
                 <img src={recipient.photo} className="w-12 h-12 rounded-full" />
                 <h1 className="font-semibold text-xl">{recipient.name}</h1>
@@ -196,18 +196,24 @@ function Message() {
             {isSuccessShowPrivateChat ? (
               <div className="flex flex-col overflow-y-auto space-y-2">
                 <div className="flex flex-col items-end space-y-2">
-                  {dataPrivateChat.results.reverse().map((item, index) => (
-                    <BubbleMessage
-                      ref={item.length - 1 == index ? messagesEndRef : null}
-                      recipient={item.sender === parseInt(cookies.userId)}
-                      message={item.message}
-                      key={item.id}
-                    />
-                  ))}
+                  {dataPrivateChat.results
+                    .map((item, index) => (
+                      <BubbleMessage
+                        ref={item.length - 1 == index ? messagesEndRef : null}
+                        recipient={item.sender === parseInt(cookies.userId)}
+                        message={item.message}
+                        key={item.id}
+                      />
+                    ))
+                    .reverse()}
+                  <div
+                    ref={messagesEndRef}
+                    className="float-left clear-both"
+                  ></div>
                 </div>
               </div>
             ) : null}
-            {recipient != undefined? (
+            {recipient != undefined ? (
               <div className="grid grid-cols-8 gap-6">
                 <input
                   placeholder="type message..."
@@ -215,7 +221,10 @@ function Message() {
                   value={message}
                   onChange={onChangeMessage}
                 />
-                <div onClick={onMessage} className="bg-current-purple flex items-center justify-center rounded-full text-white text-2xl">
+                <div
+                  onClick={onMessage}
+                  className="bg-current-purple flex items-center justify-center rounded-full text-white text-2xl"
+                >
                   <FaPaperPlane />
                 </div>
               </div>

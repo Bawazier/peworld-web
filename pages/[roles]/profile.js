@@ -26,6 +26,22 @@ import {
 import { useRouter } from "next/router";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
+import { parseCookies } from "../../helpers/parseCookies";
+
+export async function getServerSideProps({ req, params }) {
+  const cookies = await parseCookies(req);
+  if (cookies.token === "undefined") {
+    return {
+      redirect: {
+        destination: `/${params.roles}/auth/login`,
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+}
 
 function Profile() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
@@ -44,7 +60,10 @@ function Profile() {
     [`${roles}-profile`],
     () => getDetailsUser(cookies.token, parseInt(cookies.userId)),
     {
-      enabled: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      retry: 2,
+      cacheTime: Infinity,
     }
   );
 
@@ -129,8 +148,8 @@ function Profile() {
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
                       : data.results.Company?.photo
-                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
-                        : "../images/person.png"
+                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                      : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
@@ -162,7 +181,13 @@ function Profile() {
                   Kembali
                 </button>
                 <button
-                  onClick={() => removeCookie("token")}
+                  onClick={() =>
+                    removeCookie("token", {
+                      path: "/",
+                      maxAge: 3600, // Expires after 1hr
+                      sameSite: true,
+                    })
+                  }
                   className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
                 >
                   Keluar
@@ -300,7 +325,7 @@ function Profile() {
                 <div className="flex flex-col space-y-4 overflow-auto overscroll-auto max-h-screen">
                   {!addWorkExp && !updateWorkExp ? (
                     data.results.WorkExperiences &&
-                    data.results.WorkExperiences.reverse().map((item) => (
+                    data.results.WorkExperiences.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => setUpdateWorkExp(item)}
@@ -308,7 +333,7 @@ function Profile() {
                       >
                         <CardWorkerExp data={item} />
                       </button>
-                    ))
+                    )).reverse()
                   ) : addWorkExp && !updateWorkExp ? (
                     <FormWorkerExp
                       onCancel={() => setAddWorkExp(!addWorkExp)}

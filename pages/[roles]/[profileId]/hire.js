@@ -25,7 +25,10 @@ function Profile() {
     [`${roles}-profile`],
     () => getDetailsUser(cookies.token, parseInt(cookies.id)),
     {
-      enabled: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      retry: 2,
+      cacheTime: Infinity,
     }
   );
 

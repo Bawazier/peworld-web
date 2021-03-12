@@ -14,6 +14,22 @@ import {
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useRouter } from "next/router";
 import { useCookies } from "react-cookie";
+import { parseCookies } from "../../helpers/parseCookies";
+
+export async function getServerSideProps({ req, params }) {
+  const cookies = await parseCookies(req);
+  if (cookies.token === "undefined") {
+    return {
+      redirect: {
+        destination: `/${params.roles}/auth/login`,
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+}
 
 function EditProfile() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
@@ -26,7 +42,10 @@ function EditProfile() {
     [`${roles}-profile`],
     () => getDetailsUser(cookies.token, parseInt(cookies.id)),
     {
-      enabled: false,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      retry: 2,
+      cacheTime: Infinity,
     }
   );
 

@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Layout from "../../components/layout";
 import CardWorker from "../../components/common/card-worker";
+import CardWorkerLoading from "../../components/handle/card-worker-loading";
 import Pagination from "../../components/common/pagination";
 // import Link from "next/link";
 import { FaSearch, FaSortDown } from "react-icons/fa";
@@ -50,7 +51,7 @@ function Home() {
   const [searchVal, setSearchVal] = useState("");
   const [cookies] = useCookies(["user"]);
 
-  const { data, isSuccess } = useQuery(
+  const { data, isSuccess, isFetched } = useQuery(
     [`${roles}`, page, sort, searchVal],
     () => getHome(cookies.token, page, sort, sortType, searchVal),
     {
@@ -119,7 +120,10 @@ function Home() {
           <i className="bg-transparent" aria-hidden={true}>
             <FaSortDown className="text-gray-600 text-3xl" />
           </i>
-          <select defaultValue="name" className="w-full bg-transparent appearance-none text-sm font-bold">
+          <select
+            defaultValue="name"
+            className="w-full bg-transparent appearance-none text-sm font-bold"
+          >
             <option onClick={sortByCreatedAt} selected>
               Sort
             </option>
@@ -154,7 +158,14 @@ function Home() {
         </button>
       </section>
       <section className="grid grid-cols-1 gap-8 divide-y divide-gray-200 bg-white rounded-md shadow-xl p-4 my-6">
-        {isSuccess && data?.results.map((item) => <CardWorker data={item} getDetailUser={() => getDetailUser(item.id)} />)}
+        {isSuccess &&
+          data?.results.map((item) => (
+            <CardWorker
+              data={item}
+              getDetailUser={() => getDetailUser(item.id)}
+            />
+          ))}
+        {isFetched && <CardWorkerLoading />}
       </section>
       <section className="my-6">
         <Pagination
