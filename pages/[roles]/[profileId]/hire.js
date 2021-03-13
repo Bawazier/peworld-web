@@ -12,6 +12,7 @@ import {
 } from "../../../libs/api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useRouter } from "next/router";
+import Error from "next/error";
 import { useCookies } from "react-cookie";
 
 function Profile() {
@@ -21,7 +22,7 @@ function Profile() {
   const queryClient = useQueryClient();
   const [cookies] = useCookies(["user"]);
 
-  const { data, isSuccess } = useQuery(
+  const { data, isSuccess, isError } = useQuery(
     [`${roles}-profile`],
     () => getDetailsUser(cookies.token, parseInt(cookies.id)),
     {
@@ -32,13 +33,17 @@ function Profile() {
     }
   );
 
-  const { data: dataWorker } = useQuery(
+  const { data: dataWorker, isError: isDataWorkerError } = useQuery(
     [`${roles}-detail`, profileId],
     () => getDetailsUser(cookies.token, profileId),
     {
       enabled: false,
     }
   );
+
+  if (isError || isDataWorkerError) {
+    return <Error statusCode={500} />;
+  }
 
   const { mutate: sendMessage } = useMutation(
     (message) => sendChat(cookies.token, profileId, message),

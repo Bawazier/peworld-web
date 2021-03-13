@@ -13,6 +13,7 @@ import {
 } from "../../libs/api";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useRouter } from "next/router";
+import Error from "next/error";
 import { useCookies } from "react-cookie";
 import { parseCookies } from "../../helpers/parseCookies";
 
@@ -38,7 +39,7 @@ function EditProfile() {
   const queryClient = useQueryClient();
   const [cookies] = useCookies(["user"]);
 
-  const { data, isSuccess } = useQuery(
+  const { data, isSuccess, isError } = useQuery(
     [`${roles}-profile`],
     () => getDetailsUser(cookies.token, parseInt(cookies.id)),
     {
@@ -48,6 +49,10 @@ function EditProfile() {
       cacheTime: Infinity,
     }
   );
+
+  if (isError) {
+    return <Error statusCode={500} />;
+  }
 
   const { mutate: mutateCompany } = useMutation((data) =>
     updateCompany(cookies.token, data)

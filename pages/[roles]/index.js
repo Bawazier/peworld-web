@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import Layout from "../../components/layout";
 import CardWorker from "../../components/common/card-worker";
-import CardWorkerLoading from "../../components/handle/card-worker-loading";
 import Pagination from "../../components/common/pagination";
 // import Link from "next/link";
 import { FaSearch, FaSortDown } from "react-icons/fa";
@@ -12,6 +11,7 @@ import { dehydrate } from "react-query/hydration";
 import { useCookies } from "react-cookie";
 import {parseCookies} from "../../helpers/parseCookies";
 import { useRouter } from "next/router";
+import Error from "next/error";
 
 export async function getServerSideProps({ req, params }) {
   const cookies = await parseCookies(req);
@@ -51,7 +51,7 @@ function Home() {
   const [searchVal, setSearchVal] = useState("");
   const [cookies] = useCookies(["user"]);
 
-  const { data, isSuccess, isFetched } = useQuery(
+  const { data, isSuccess, isError } = useQuery(
     [`${roles}`, page, sort, searchVal],
     () => getHome(cookies.token, page, sort, sortType, searchVal),
     {
@@ -62,6 +62,10 @@ function Home() {
       cacheTime: 1000 * 60,
     }
   );
+
+  if (isError) {
+    return <Error statusCode={500} />;
+  }
 
   const nextPage = async () => {
     await setPage((old) => old + 1);
@@ -165,7 +169,6 @@ function Home() {
               getDetailUser={() => getDetailUser(item.id)}
             />
           ))}
-        {isFetched && <CardWorkerLoading />}
       </section>
       <section className="my-6">
         <Pagination

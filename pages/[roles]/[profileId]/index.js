@@ -13,6 +13,7 @@ import { useQuery, QueryClient } from "react-query";
 import { dehydrate } from "react-query/hydration";
 import { getDetailsUser } from "../../../libs/api";
 import { useRouter } from "next/router";
+import Error from "next/error";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
 import { parseCookies } from "../../../helpers/parseCookies";
@@ -47,7 +48,7 @@ function Profile() {
   const [toastWorkExo, setToastWorkExo] = useState(false);
   const [cookies] = useCookies(["user"]);
 
-  const { data, isSuccess } = useQuery(
+  const { data, isSuccess, isError } = useQuery(
     [`${roles}-detail`, profileId],
     () => getDetailsUser(cookies.token, profileId),
     {
@@ -58,6 +59,10 @@ function Profile() {
       cacheTime: 1000 * 60,
     }
   );
+
+  if (isError) {
+    return <Error statusCode={500} />;
+  }
 
   const togglePortfolio = () => {
     setToastPortfolio(true);

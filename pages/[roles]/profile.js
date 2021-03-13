@@ -24,6 +24,7 @@ import {
   updatePortfolio,
 } from "../../libs/api";
 import { useRouter } from "next/router";
+import Error from "next/error";
 import { FiMail } from "react-icons/fi";
 import { useCookies } from "react-cookie";
 import { parseCookies } from "../../helpers/parseCookies";
@@ -56,7 +57,7 @@ function Profile() {
   const [updatePortofolio, setUpdatePortofolio] = useState(false);
   const [cookies, removeCookie] = useCookies(["user"]);
 
-  const { data, isSuccess } = useQuery(
+  const { data, isSuccess, isError } = useQuery(
     [`${roles}-profile`],
     () => getDetailsUser(cookies.token, parseInt(cookies.userId)),
     {
@@ -66,6 +67,10 @@ function Profile() {
       cacheTime: Infinity,
     }
   );
+
+  if (isError) {
+    return <Error statusCode={500} />;
+  }
 
   const togglePortfolio = () => {
     setToastPortfolio(true);
@@ -148,8 +153,8 @@ function Profile() {
                     data.results.photo
                       ? NEXT_PUBLIC_API_URL_IMAGE + data.results.photo
                       : data.results.Company?.photo
-                      ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
-                      : "../images/person.png"
+                        ? NEXT_PUBLIC_API_URL_IMAGE + data.results.Company.photo
+                        : "../images/person.png"
                   }
                   className="w-32 h-32 rounded-full"
                 />
