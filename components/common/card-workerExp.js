@@ -10,7 +10,7 @@ function CardWorkerExp({data}) {
           src={
             data.Company.photo
               ? NEXT_PUBLIC_API_URL_IMAGE + data.Company.photo
-              : "../images/tokped.png"
+              : "../images/company.png"
           }
           className="w-24 h-24"
         />
