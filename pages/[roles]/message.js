@@ -43,6 +43,7 @@ function Message() {
   const [recipient, setRecipient] = useState({});
   const [pageChat, setPageChat] = useState(1);
   const [message, setMessage] = useState("");
+  const messagesEndRef = useRef(null);
   const router = useRouter();
   const queryClient = useQueryClient();
   const { roles } = router.query;
@@ -54,9 +55,10 @@ function Message() {
     () => getAllList(cookies.token),
     {
       keepPreviousData: true,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      retry: 2,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      retry: true,
+      retryDelay: 3000,
     }
   );
 
@@ -68,9 +70,10 @@ function Message() {
     () => getPrivateMessage(cookies.token, recipient.id, pageChat),
     {
       keepPreviousData: true,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      retry: 2,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      retry: true,
+      retryDelay: 3000,
       cacheTime: 1000 * 60,
       enabled: recipient != undefined,
     }
@@ -95,7 +98,6 @@ function Message() {
     setMessage("");
   };
 
-  const messagesEndRef = useRef(null);
   useEffect(() => {
     if (messagesEndRef.current !== null) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });

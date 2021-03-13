@@ -38,17 +38,17 @@ function Login() {
         const { roleId, id } = jwt_decode(data.token);
         await setCookie("token", data.token, {
           path: "/",
-          maxAge: 3600, // Expires after 1hr
+          maxAge: 172800, // Expires after 2d
           sameSite: true,
         });
         await setCookie("role", roleId, {
           path: "/",
-          maxAge: 3600, // Expires after 1hr
+          maxAge: 172800, // Expires after 2d
           sameSite: true,
         });
         await setCookie("userId", id, {
           path: "/",
-          maxAge: 3600, // Expires after 1hr
+          maxAge: 172800, // Expires after 2d
           sameSite: true,
         });
       },
