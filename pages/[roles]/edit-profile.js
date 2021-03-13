@@ -1,5 +1,6 @@
 import React from "react";
 import Layout from "../../components/layout";
+import MutateError from "../../components/handle/mutateError";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { FiImage } from "react-icons/fi";
 import { useFormik } from "formik";
@@ -54,31 +55,57 @@ function EditProfile() {
     return <Error statusCode={500} />;
   }
 
-  const { mutate: mutateCompany } = useMutation((data) =>
-    updateCompany(cookies.token, data)
-  );
-  const { mutate: mutateProfile } = useMutation((data) => updateProfile(cookies.token, data));
+  const {
+    mutate: mutateCompany,
+    isError: isCompanyError,
+    reset: resetCompany,
+  } = useMutation((data) => updateCompany(cookies.token, data), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
+  const {
+    mutate: mutateProfile,
+    isError: isProfileError,
+    reset: resetProfile,
+  } = useMutation((data) => updateProfile(cookies.token, data), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
   
 
-  const { mutate: mutateImageProfile } = useMutation(
-    (data) => updateImageProfile(cookies.token, data),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-profile`]);
-      },
-    }
-  );
+  const {
+    mutate: mutateImageProfile,
+    isError: isImageProfileError,
+    reset: resetImageProfile,
+  } = useMutation((data) => updateImageProfile(cookies.token, data), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
 
-  const { mutate: mutateImageCompany } = useMutation(
-    (data) => updateImageCompany(cookies.token, data),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-profile`]);
-      },
-    }
-  );
+  const {
+    mutate: mutateImageCompany,
+    isError: isImageCompanyError,
+    reset: resetImageCompany,
+  } = useMutation((data) => updateImageCompany(cookies.token, data), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
+
+  const handleResetError = () => {
+    if (isCompanyError) resetCompany();
+    else if (isProfileError) resetProfile();
+    else if (isImageProfileError) resetImageProfile();
+    else if (isImageCompanyError) resetImageCompany();
+    else false;
+  };
 
   const profileValidation = Yup.object().shape({
     name: Yup.string(),
@@ -243,245 +270,259 @@ function EditProfile() {
                 </button>
               </div>
             </section>
-            <section className="bg-white col-span-2 flex flex-col space-y-4 rounded-2xl py-4 px-8 shadow-2xl my-20">
-              <div>
-                <h1 className="font-semibold text-2xl text-gray-700">
-                  Data diri
-                </h1>
-              </div>
-              <hr />
-              <form className="flex flex-col space-y-6 w-full pb-10">
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">
-                    Nama Lengkap
-                  </label>
-                  <input
-                    placeholder="Masukan nama lengkap"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="name"
-                    value={values.name}
+            {isCompanyError ||
+            isProfileError ||
+            isImageProfileError ||
+            isImageCompanyError ? (
+                <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 shadow-2xl my-20">
+                  <MutateError
+                    heightContainer="screen"
+                    resetError={handleResetError}
                   />
-                  {touched.name && errors.name && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.name}
-                    </span>
-                  )}
-                </div>
-                {cookies.role === "2" ? (
-                  <>
+                </section>
+              ) : (
+                <section className="bg-white col-span-2 flex flex-col space-y-4 rounded-2xl py-4 px-8 shadow-2xl my-20">
+                  <div>
+                    <h1 className="font-semibold text-2xl text-gray-700">
+                    Data diri
+                    </h1>
+                  </div>
+                  <hr />
+                  <form className="flex flex-col space-y-6 w-full pb-10">
                     <div className="flex flex-col space-y-2">
                       <label className="font-sans text-gray-600">
-                        Job desk
+                      Nama Lengkap
                       </label>
                       <input
-                        placeholder="Masukan job desk"
+                        placeholder="Masukan nama lengkap"
                         className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        name="jobTitle"
-                        value={values.jobTitle}
+                        name="name"
+                        value={values.name}
                       />
-                      {touched.jobTitle && errors.jobTitle && (
+                      {touched.name && errors.name && (
                         <span className="font-sans text-sm text-red-500">
-                          {errors.jobTitle}
+                          {errors.name}
+                        </span>
+                      )}
+                    </div>
+                    {cookies.role === "2" ? (
+                      <>
+                        <div className="flex flex-col space-y-2">
+                          <label className="font-sans text-gray-600">
+                          Job desk
+                          </label>
+                          <input
+                            placeholder="Masukan job desk"
+                            className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            name="jobTitle"
+                            value={values.jobTitle}
+                          />
+                          {touched.jobTitle && errors.jobTitle && (
+                            <span className="font-sans text-sm text-red-500">
+                              {errors.jobTitle}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                          <label className="font-sans text-gray-600">
+                          Domisili
+                          </label>
+                          <input
+                            placeholder="Masukan domisili"
+                            className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            name="address"
+                            value={values.address}
+                          />
+                          {touched.address && errors.address && (
+                            <span className="font-sans text-sm text-red-500">
+                              {errors.address}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                          <label className="font-sans text-gray-600">
+                          Tempat Kerja
+                          </label>
+                          <input
+                            placeholder="Masukan tempat kerja"
+                            className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            name="company"
+                            value={values.company}
+                          />
+                          {touched.company && errors.company && (
+                            <span className="font-sans text-sm text-red-500">
+                              {errors.company}
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex flex-col space-y-2">
+                          <label className="font-sans text-gray-600">
+                          Nama Perusahaan
+                          </label>
+                          <input
+                            placeholder="Masukan nama perusahaan"
+                            className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            name="company"
+                            value={values.company}
+                          />
+                          {touched.company && errors.company && (
+                            <span className="font-sans text-sm text-red-500">
+                              {errors.company}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                          <label className="font-sans text-gray-600">
+                          Bidang
+                          </label>
+                          <input
+                            placeholder="Masukan bidang perusahaan ex : Financial"
+                            className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            name="jobTitle"
+                            value={values.jobTitle}
+                          />
+                          {touched.jobTitle && errors.jobTitle && (
+                            <span className="font-sans text-sm text-red-500">
+                              {errors.jobTitle}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                          <label className="font-sans text-gray-600">Kota</label>
+                          <input
+                            placeholder="Masukan kota"
+                            className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                            name="address"
+                            value={values.address}
+                          />
+                          {touched.address && errors.address && (
+                            <span className="font-sans text-sm text-red-500">
+                              {errors.address}
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    )}
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">
+                      Deskripsi singkat
+                      </label>
+                      <textarea
+                        placeholder="Tuliskan deskripsi singkat"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="bio"
+                        value={values.bio}
+                      />
+                      {touched.bio && errors.bio && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.bio}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">Email</label>
+                      <input
+                        placeholder="Masukan alamat email"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="email"
+                        value={values.email}
+                      />
+                      {touched.email && errors.email && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.email}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                      <label className="font-sans text-gray-600">Instagram</label>
+                      <input
+                        placeholder="Masukan nama Instagram"
+                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        name="instagram"
+                        value={values.instagram}
+                      />
+                      {touched.instagram && errors.instagram && (
+                        <span className="font-sans text-sm text-red-500">
+                          {errors.instagram}
                         </span>
                       )}
                     </div>
                     <div className="flex flex-col space-y-2">
                       <label className="font-sans text-gray-600">
-                        Domisili
+                      Nomor Telepon
                       </label>
                       <input
-                        placeholder="Masukan domisili"
+                        placeholder="Masukan nomor telepon"
                         className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        name="address"
-                        value={values.address}
+                        name="phoneNumber"
+                        value={values.phoneNumber}
                       />
-                      {touched.address && errors.address && (
+                      {touched.phoneNumber && errors.phoneNumber && (
                         <span className="font-sans text-sm text-red-500">
-                          {errors.address}
+                          {errors.phoneNumber}
                         </span>
                       )}
                     </div>
                     <div className="flex flex-col space-y-2">
-                      <label className="font-sans text-gray-600">
-                        Tempat Kerja
-                      </label>
+                      <label className="font-sans text-gray-600">Github</label>
                       <input
-                        placeholder="Masukan tempat kerja"
+                        placeholder="Masukan github account"
                         className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        name="company"
-                        value={values.company}
+                        name="github"
+                        value={values.github}
                       />
-                      {touched.company && errors.company && (
+                      {touched.github && errors.github && (
                         <span className="font-sans text-sm text-red-500">
-                          {errors.company}
-                        </span>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex flex-col space-y-2">
-                      <label className="font-sans text-gray-600">
-                        Nama Perusahaan
-                      </label>
-                      <input
-                        placeholder="Masukan nama perusahaan"
-                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        name="company"
-                        value={values.company}
-                      />
-                      {touched.company && errors.company && (
-                        <span className="font-sans text-sm text-red-500">
-                          {errors.company}
+                          {errors.github}
                         </span>
                       )}
                     </div>
                     <div className="flex flex-col space-y-2">
-                      <label className="font-sans text-gray-600">Bidang</label>
+                      <label className="font-sans text-gray-600">Linkedin</label>
                       <input
-                        placeholder="Masukan bidang perusahaan ex : Financial"
+                        placeholder="Masukan nama Linkedin"
                         className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
                         onChange={handleChange}
                         onBlur={handleBlur}
-                        name="jobTitle"
-                        value={values.jobTitle}
+                        name="linkedin"
+                        value={values.linkedin}
                       />
-                      {touched.jobTitle && errors.jobTitle && (
+                      {touched.linkedin && errors.linkedin && (
                         <span className="font-sans text-sm text-red-500">
-                          {errors.jobTitle}
+                          {errors.linkedin}
                         </span>
                       )}
                     </div>
-                    <div className="flex flex-col space-y-2">
-                      <label className="font-sans text-gray-600">Kota</label>
-                      <input
-                        placeholder="Masukan kota"
-                        className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        name="address"
-                        value={values.address}
-                      />
-                      {touched.address && errors.address && (
-                        <span className="font-sans text-sm text-red-500">
-                          {errors.address}
-                        </span>
-                      )}
-                    </div>
-                  </>
-                )}
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">
-                    Deskripsi singkat
-                  </label>
-                  <textarea
-                    placeholder="Tuliskan deskripsi singkat"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="bio"
-                    value={values.bio}
-                  />
-                  {touched.bio && errors.bio && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.bio}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">Email</label>
-                  <input
-                    placeholder="Masukan alamat email"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="email"
-                    value={values.email}
-                  />
-                  {touched.email && errors.email && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.email}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">Instagram</label>
-                  <input
-                    placeholder="Masukan nama Instagram"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="instagram"
-                    value={values.instagram}
-                  />
-                  {touched.instagram && errors.instagram && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.instagram}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">
-                    Nomor Telepon
-                  </label>
-                  <input
-                    placeholder="Masukan nomor telepon"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="phoneNumber"
-                    value={values.phoneNumber}
-                  />
-                  {touched.phoneNumber && errors.phoneNumber && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.phoneNumber}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">Github</label>
-                  <input
-                    placeholder="Masukan github account"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="github"
-                    value={values.github}
-                  />
-                  {touched.github && errors.github && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.github}
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <label className="font-sans text-gray-600">Linkedin</label>
-                  <input
-                    placeholder="Masukan nama Linkedin"
-                    className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    name="linkedin"
-                    value={values.linkedin}
-                  />
-                  {touched.linkedin && errors.linkedin && (
-                    <span className="font-sans text-sm text-red-500">
-                      {errors.linkedin}
-                    </span>
-                  )}
-                </div>
-              </form>
-            </section>
+                  </form>
+                </section>
+              )}
           </section>
         </>
       ) : (

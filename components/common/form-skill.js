@@ -3,8 +3,7 @@ import React from "react";
 import { Formik } from "formik";
 import * as yup from "yup";
 
-function FormSkill({handleSubmitSkill}) {
-
+function FormSkill({ handleSubmitSkill, isError, resetError }) {
   const skillValidation = yup.object().shape({
     name: yup.string(),
   });
@@ -27,12 +26,12 @@ function FormSkill({handleSubmitSkill}) {
             value={values.name}
           />
           <button
-            onClick={handleSubmit}
+            onClick={!isError ? handleSubmit : () => resetError()}
             disabled={!isValid}
             type="submit"
-            className="w-full text-white font-sans font-bold text-sm p-2 bg-yellow-500 rounded-md transition delay-150 duration-300 ease-in-out"
+            className="w-full text-white font-sans font-bold text-xs p-2 bg-yellow-500 rounded-md transition delay-150 duration-300 ease-in-out"
           >
-            Add New
+            {!isError ? "Buat Baru" : "Coba Lagi"}
           </button>
         </form>
       )}

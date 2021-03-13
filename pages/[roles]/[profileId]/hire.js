@@ -1,9 +1,8 @@
 import React from "react";
 import Layout from "../../../components/layout";
 import CardSkill from "../../../components/common/card-skill";
-import {
-  FaMapMarkerAlt,
-} from "react-icons/fa";
+import MutateError from "../../../components/handle/mutateError";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -45,15 +44,16 @@ function Profile() {
     return <Error statusCode={500} />;
   }
 
-  const { mutate: sendMessage } = useMutation(
-    (message) => sendChat(cookies.token, profileId, message),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-profile`]);
-      },
-    }
-  );
+  const {
+    mutate: sendMessage,
+    isError: isSendMessageError,
+    reset: resetSendMessage,
+  } = useMutation((message) => sendChat(cookies.token, profileId, message), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
 
   const profileValidation = Yup.object().shape({
     name: Yup.string(),
@@ -116,7 +116,9 @@ function Profile() {
             </span>
           </div>
           <div>
-            <p className="text-gray-400 leading-relaxed">{dataWorker.results.bio}</p>
+            <p className="text-gray-400 leading-relaxed">
+              {dataWorker.results.bio}
+            </p>
           </div>
           <div className="flex flex-col space-y-2">
             <h1 className="font-semibold text-lg">Skill</h1>
@@ -128,97 +130,106 @@ function Profile() {
             </div>
           </div>
         </section>
-        <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 my-20">
-          <div className="flex flex-col space-y-4 mb-4">
-            <h1 className="font-semibold text-3xl">
-              Hubungi {dataWorker.results.name}
-            </h1>
-            <p className="text-gray-400 leading-relaxed">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-              euismod ipsum et dui rhoncus auctor.
-            </p>
-          </div>
-          <form className="flex flex-col space-y-6 w-full">
-            <div className="flex flex-col space-y-2">
-              <label className="font-sans text-gray-600">Nama Lengkap</label>
-              <input
-                placeholder="Masukan nama lengkap"
-                className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="name"
-                type="name"
-                value={values.name}
-              />
-              {touched.name && errors.name && (
-                <span className="font-sans text-sm text-red-500">
-                  {errors.name}
-                </span>
-              )}
+        {isSendMessageError ? (
+          <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 shadow-2xl my-20">
+            <MutateError
+              heightContainer="screen"
+              resetError={() => resetSendMessage()}
+            />
+          </section>
+        ) : (
+          <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 my-20">
+            <div className="flex flex-col space-y-4 mb-4">
+              <h1 className="font-semibold text-3xl">
+                Hubungi {dataWorker.results.name}
+              </h1>
+              <p className="text-gray-400 leading-relaxed">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
+                euismod ipsum et dui rhoncus auctor.
+              </p>
             </div>
-            <div className="flex flex-col space-y-2">
-              <label className="font-sans text-gray-600">Email</label>
-              <input
-                placeholder="Masukan alamat email"
-                className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="email"
-                type="email"
-                value={values.email}
-              />
-              {touched.email && errors.email && (
-                <span className="font-sans text-sm text-red-500">
-                  {errors.email}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label className="font-sans text-gray-600">No Handpone</label>
-              <input
-                placeholder="Masukan no handpone"
-                className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="phoneNumber"
-                type="phoneNumber"
-                value={values.phoneNumber}
-              />
-              {touched.phoneNumber && errors.phoneNumber && (
-                <span className="font-sans text-sm text-red-500">
-                  {errors.phoneNumber}
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col space-y-2">
-              <label className="font-sans text-gray-600">Pesan</label>
-              <textarea
-                placeholder="Masukan pesan / deskripsi pekerjaan"
-                className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="message"
-                type="message"
-                value={values.message}
-              />
-              {touched.message && errors.message && (
-                <span className="font-sans text-sm text-red-500">
-                  {errors.message}
-                </span>
-              )}
-            </div>
-            <div>
-              <button
-                onClick={handleSubmit}
-                disabled={!isValid}
-                type="submit"
-                className="w-full text-white font-sans font-bold bg-yellow-500 p-3.5 rounded-md transition delay-150 duration-300 ease-in-out"
-              >
-                Hire
-              </button>
-            </div>
-          </form>
-        </section>
+            <form className="flex flex-col space-y-6 w-full">
+              <div className="flex flex-col space-y-2">
+                <label className="font-sans text-gray-600">Nama Lengkap</label>
+                <input
+                  placeholder="Masukan nama lengkap"
+                  className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="name"
+                  type="name"
+                  value={values.name}
+                />
+                {touched.name && errors.name && (
+                  <span className="font-sans text-sm text-red-500">
+                    {errors.name}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col space-y-2">
+                <label className="font-sans text-gray-600">Email</label>
+                <input
+                  placeholder="Masukan alamat email"
+                  className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="email"
+                  type="email"
+                  value={values.email}
+                />
+                {touched.email && errors.email && (
+                  <span className="font-sans text-sm text-red-500">
+                    {errors.email}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col space-y-2">
+                <label className="font-sans text-gray-600">No Handpone</label>
+                <input
+                  placeholder="Masukan no handpone"
+                  className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="phoneNumber"
+                  type="phoneNumber"
+                  value={values.phoneNumber}
+                />
+                {touched.phoneNumber && errors.phoneNumber && (
+                  <span className="font-sans text-sm text-red-500">
+                    {errors.phoneNumber}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col space-y-2">
+                <label className="font-sans text-gray-600">Pesan</label>
+                <textarea
+                  placeholder="Masukan pesan / deskripsi pekerjaan"
+                  className="w-full font-sans border-2 p-3.5 rounded-md focus:ring-4 ring-yellow-500 ring-opacity-50 border-0"
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="message"
+                  type="message"
+                  value={values.message}
+                />
+                {touched.message && errors.message && (
+                  <span className="font-sans text-sm text-red-500">
+                    {errors.message}
+                  </span>
+                )}
+              </div>
+              <div>
+                <button
+                  onClick={handleSubmit}
+                  disabled={!isValid}
+                  type="submit"
+                  className="w-full text-white font-sans font-bold bg-yellow-500 p-3.5 rounded-md transition delay-150 duration-300 ease-in-out"
+                >
+                  Hire
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
       </section>
     </Layout>
   );

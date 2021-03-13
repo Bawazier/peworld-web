@@ -6,6 +6,7 @@ import CardPortfolio from "../../components/common/card-portfolio";
 import FormSkill from "../../components/common/form-skill";
 import FormWorkerExp from "../../components/common/form-workerExp";
 import FormPortfolio from "../../components/common/form-portfolio";
+import MutateError from "../../components/handle/mutateError";
 import {
   FaMapMarkerAlt,
   FaInstagram,
@@ -81,7 +82,7 @@ function Profile() {
     setToastPortfolio(false);
   };
 
-  const { mutate: mutatePostSkill } = useMutation(
+  const { mutate: mutatePostSkill, isError: isPostSkillError, reset: resetPostSkill } = useMutation(
     (data) => postSkill(cookies.token, data),
     {
     // Always refetch after error or success:
@@ -102,43 +103,59 @@ function Profile() {
   const handleDeleteSkill = (id) => mutateDeleteSkill(id);
   const handlePostSkill = (data) => mutatePostSkill(data);
 
-  const { mutate: mutateAddWorkerExp } = useMutation(
-    (data) => addWorkerExp(cookies.token, data),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-profile`]);
-      },
-    }
-  );
-  const { mutate: mutateUpdateWorkerExp } = useMutation(
-    (id, data) => updateWorkerExp(cookies.token, id, data),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-profile`]);
-      },
-    }
-  );
+  const {
+    mutate: mutateAddWorkerExp,
+    isError: isAddWorkerExpError,
+    reset: resetAddWorkerExp,
+  } = useMutation((data) => addWorkerExp(cookies.token, data), {
+    // Always refetch after error or success:
+    onSuccess: () => setAddWorkExp(false),
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
+  const {
+    mutate: mutateUpdateWorkerExp,
+    isError: isUpdateWorkerExpError,
+    reset: resetUpdateWorkerExp,
+  } = useMutation((id, data) => updateWorkerExp(cookies.token, id, data), {
+    // Always refetch after error or success:
+    onSuccess: () => setUpdateWorkExp(false),
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
 
-  const { mutate: mutateAddPortofolio } = useMutation(
-    (data) => addPortfolio(cookies.token, data),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-profile`]);
-      },
-    }
-  );
-  const { mutate: mutateUpdatePortofolio } = useMutation(
-    (id, data) => updatePortfolio(cookies.token, id, data),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-profile`]);
-      },
-    }
-  );
+  const {
+    mutate: mutateAddPortofolio,
+    isError: isAddPortofolioError,
+    reset: resetAddPortofolio,
+  } = useMutation((data) => addPortfolio(cookies.token, data), {
+    // Always refetch after error or success:
+    onSuccess: () => setAddPortofolio(false),
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
+  const {
+    mutate: mutateUpdatePortofolio,
+    isError: isUpdatePortofolioError,
+    reset: resetUpdatePortofolio,
+  } = useMutation((id, data) => updatePortfolio(cookies.token, id, data), {
+    // Always refetch after error or success:
+    onSuccess: () => setUpdatePortofolio(false),
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
+
+  const handleResetError = () => {
+    if (isAddWorkerExpError) resetAddWorkerExp();
+    else if (isUpdateWorkerExpError) resetUpdateWorkerExp();
+    else if (isAddPortofolioError) resetAddPortofolio();
+    else if (isUpdatePortofolioError) resetUpdatePortofolio();
+    else false;
+  };
 
   return (
     <Layout>
@@ -201,7 +218,11 @@ function Profile() {
               <div className="flex flex-col space-y-2">
                 <h1 className="font-semibold text-lg">Skill</h1>
                 <div className="flex space-x-4 space-y-4 flex-wrap">
-                  <FormSkill handleSubmitSkill={handlePostSkill} />
+                  <FormSkill
+                    handleSubmitSkill={handlePostSkill}
+                    isError={isPostSkillError}
+                    resetError={resetPostSkill}
+                  />
                   {data.results.WorkerSkills &&
                     data.results.WorkerSkills.map((item) => (
                       <CardSkill
@@ -258,114 +279,126 @@ function Profile() {
                 </a>
               </div>
             </section>
-            <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 shadow-2xl my-20">
-              <div className="flex space-x-4 items-start">
-                <button
-                  onClick={togglePortfolio}
-                  className={
-                    toastPortfolio
-                      ? "text-2xl p-2 font-semibold border-b-2 border-current-purple"
-                      : "text-2xl p-2 font-semibold text-gray-400"
-                  }
-                >
-                  Portofolio
-                </button>
-                <button
-                  onClick={toggleWorkExp}
-                  className={
-                    toastWorkExp
-                      ? "text-2xl p-2 font-semibold border-b-2 border-current-purple"
-                      : "text-2xl p-2 font-semibold text-gray-400"
-                  }
-                >
-                  Pengalaman kerja
-                </button>
-              </div>
-              <div
-                className={
-                  toastPortfolio ? "grid grid-cols-1 gap-8 py-6" : "hidden"
-                }
-              >
-                {!addPortofolio && !updatePortofolio ? (
-                  <div className="grid grid-cols-3 gap-4 py-6 overflow-auto overscroll-auto max-h-screen">
-                    {data.results.Portofolios &&
-                      data.results.Portofolios.map((item) => (
-                        <button
-                          key={item.id}
-                          onClick={() => setUpdatePortofolio(item)}
-                        >
-                          <CardPortfolio data={item} />
-                        </button>
-                      ))}
+            {isAddWorkerExpError ||
+            isUpdateWorkerExpError ||
+            isAddPortofolioError ||
+            isUpdatePortofolioError ? (
+                <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 shadow-2xl my-20">
+                  <MutateError
+                    heightContainer="screen"
+                    resetError={handleResetError}
+                  />
+                </section>
+              ) : (
+                <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 shadow-2xl my-20">
+                  <div className="flex space-x-4 items-start">
                     <button
-                      type="button"
-                      onClick={() => setAddPortofolio(!addPortofolio)}
-                      className="w-full h-full flex flex-col items-center justify-center space-y-2 items-center text-white bg-yellow-500"
+                      onClick={togglePortfolio}
+                      className={
+                        toastPortfolio
+                          ? "text-2xl p-2 font-semibold border-b-2 border-current-purple"
+                          : "text-2xl p-2 font-semibold text-gray-400"
+                      }
                     >
-                      <FaPlusSquare className="text-4xl w-full h-52" />
-                      <h1 className="w-full bg-white text-black p-2">
-                        Tambah Portofolio
-                      </h1>
+                    Portofolio
+                    </button>
+                    <button
+                      onClick={toggleWorkExp}
+                      className={
+                        toastWorkExp
+                          ? "text-2xl p-2 font-semibold border-b-2 border-current-purple"
+                          : "text-2xl p-2 font-semibold text-gray-400"
+                      }
+                    >
+                    Pengalaman kerja
                     </button>
                   </div>
-                ) : addPortofolio && !updatePortofolio ? (
-                  <FormPortfolio
-                    onCancel={() => setAddPortofolio(!addPortofolio)}
-                    addPortfolio={mutateAddPortofolio}
-                  />
-                ) : (
-                  <FormPortfolio
-                    onCancel={() => setUpdatePortofolio(false)}
-                    updatePortfolio={mutateUpdatePortofolio}
-                    data={updatePortofolio}
-                    toggleUpdate={true}
-                  />
-                )}
-              </div>
-              <div
-                className={
-                  toastWorkExp ? "grid grid-cols-1 gap-8 py-6" : "hidden"
-                }
-              >
-                <div className="flex flex-col space-y-4 overflow-auto overscroll-auto max-h-screen">
-                  {!addWorkExp && !updateWorkExp ? (
-                    data.results.WorkExperiences &&
-                    data.results.WorkExperiences.map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => setUpdateWorkExp(item)}
-                        className="text-left"
-                      >
-                        <CardWorkerExp data={item} />
-                      </button>
-                    )).reverse()
-                  ) : addWorkExp && !updateWorkExp ? (
-                    <FormWorkerExp
-                      onCancel={() => setAddWorkExp(!addWorkExp)}
-                      addWorkerExp={mutateAddWorkerExp}
-                    />
-                  ) : (
-                    <FormWorkerExp
-                      onCancel={() => setUpdateWorkExp(false)}
-                      updateWorkerExp={mutateUpdateWorkerExp}
-                      data={updateWorkExp}
-                      toggleUpdate={true}
-                    />
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setAddWorkExp(!addWorkExp)}
-                  className={
-                    addWorkExp || updateWorkExp
-                      ? "hidden"
-                      : "flex items-center justify-center text-white bg-yellow-500 p-4 rounded-2xl"
-                  }
-                >
-                  <FaPlusSquare className="text-6xl" />
-                </button>
-              </div>
-            </section>
+                  <div
+                    className={
+                      toastPortfolio ? "grid grid-cols-1 gap-8 py-6" : "hidden"
+                    }
+                  >
+                    {!addPortofolio && !updatePortofolio ? (
+                      <div className="grid grid-cols-3 gap-4 py-6 overflow-auto overscroll-auto max-h-screen">
+                        {data.results.Portofolios &&
+                        data.results.Portofolios.map((item) => (
+                          <button
+                            key={item.id}
+                            onClick={() => setUpdatePortofolio(item)}
+                          >
+                            <CardPortfolio data={item} />
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setAddPortofolio(!addPortofolio)}
+                          className="w-full h-full flex flex-col items-center justify-center space-y-2 items-center text-white bg-yellow-500"
+                        >
+                          <FaPlusSquare className="text-4xl w-full h-52" />
+                          <h1 className="w-full bg-white text-black p-2">
+                          Tambah Portofolio
+                          </h1>
+                        </button>
+                      </div>
+                    ) : addPortofolio && !updatePortofolio ? (
+                      <FormPortfolio
+                        onCancel={() => setAddPortofolio(!addPortofolio)}
+                        addPortfolio={mutateAddPortofolio}
+                      />
+                    ) : (
+                      <FormPortfolio
+                        onCancel={() => setUpdatePortofolio(false)}
+                        updatePortfolio={mutateUpdatePortofolio}
+                        data={updatePortofolio}
+                        toggleUpdate={true}
+                      />
+                    )}
+                  </div>
+                  <div
+                    className={
+                      toastWorkExp ? "grid grid-cols-1 gap-8 py-6" : "hidden"
+                    }
+                  >
+                    <div className="flex flex-col space-y-4 overflow-auto overscroll-auto max-h-screen">
+                      {!addWorkExp && !updateWorkExp ? (
+                        data.results.WorkExperiences &&
+                      data.results.WorkExperiences.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setUpdateWorkExp(item)}
+                          className="text-left"
+                        >
+                          <CardWorkerExp data={item} />
+                        </button>
+                      )).reverse()
+                      ) : addWorkExp && !updateWorkExp ? (
+                        <FormWorkerExp
+                          onCancel={() => setAddWorkExp(!addWorkExp)}
+                          addWorkerExp={mutateAddWorkerExp}
+                        />
+                      ) : (
+                        <FormWorkerExp
+                          onCancel={() => setUpdateWorkExp(false)}
+                          updateWorkerExp={mutateUpdateWorkerExp}
+                          data={updateWorkExp}
+                          toggleUpdate={true}
+                        />
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAddWorkExp(!addWorkExp)}
+                      className={
+                        addWorkExp || updateWorkExp
+                          ? "hidden"
+                          : "flex items-center justify-center text-white bg-yellow-500 p-4 rounded-2xl"
+                      }
+                    >
+                      <FaPlusSquare className="text-6xl" />
+                    </button>
+                  </div>
+                </section>
+              )}
           </section>
         </>
       ) : cookies.role === "3" && isSuccess ? (

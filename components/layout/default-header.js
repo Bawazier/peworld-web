@@ -34,7 +34,7 @@ function DefaultHeader() {
             </Link>
             <FiMail
               className="text-gray-500 text-2xl cursor-pointer"
-              onClick={() => router.push(`${roles}/message`)}
+              onClick={() => router.push(`/${roles}/message`)}
             />
             <img
               src={
@@ -45,7 +45,7 @@ function DefaultHeader() {
                     : "../images/person.png"
               }
               className="w-8 h-8 rounded-full cursor-pointer"
-              onClick={() => router.push(`${roles}/profile`)}
+              onClick={() => router.push(`/${roles}/profile`)}
             />
           </div>
         ) : (

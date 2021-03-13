@@ -2,6 +2,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import Layout from "../../components/layout";
 import BubbleMessage from "../../components/common/bubble-message";
+import MutateError from "../../components/handle/mutateError";
 import { FaPaperPlane } from "react-icons/fa";
 import { getAllList, getPrivateMessage, sendChat } from "../../libs/api";
 import {
@@ -75,15 +76,16 @@ function Message() {
     }
   );
 
-  const { mutate: sendMessage } = useMutation(
-    (message) => sendChat(cookies.token, recipient.id, message),
-    {
-      // Always refetch after error or success:
-      onSettled: () => {
-        queryClient.invalidateQueries([`${roles}-message-private-person`]);
-      },
-    }
-  );
+  const {
+    mutate: sendMessage,
+    isError: isSendMessageError,
+    reset: resetSendMessage,
+  } = useMutation((message) => sendChat(cookies.token, recipient.id, message), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-message-private-person`]);
+    },
+  });
 
   const onChangeMessage = (event) => {
     setMessage(event.target.value);
@@ -180,57 +182,69 @@ function Message() {
             )}
           </section>
         </section>
-        <section className="bg-white col-span-2 flex flex-col space-y-4 rounded-2xl py-4 shadow-2xl my-20">
-          <section className="flex flex-col space-y-2">
-            {recipient != undefined ? (
-              <div className="flex items-center space-x-2 px-8">
-                <img src={recipient.photo} className="w-12 h-12 rounded-full" />
-                <h1 className="font-semibold text-xl">{recipient.name}</h1>
-              </div>
-            ) : (
-              <h1 className="px-8 font-semibold text-xl">&nbsp;</h1>
-            )}
-            <hr />
+        {isSendMessageError ? (
+          <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 shadow-2xl my-20">
+            <MutateError
+              heightContainer="screen"
+              resetError={() => resetSendMessage()}
+            />
           </section>
-          <section className="px-8 w-full h-full max-h-screen min-h-screen flex flex-col space-y-6 justify-end">
-            {isSuccessShowPrivateChat ? (
-              <div className="flex flex-col overflow-y-auto space-y-2">
-                <div className="flex flex-col items-end space-y-2">
-                  {dataPrivateChat.results
-                    .map((item, index) => (
-                      <BubbleMessage
-                        ref={item.length - 1 == index ? messagesEndRef : null}
-                        recipient={item.sender === parseInt(cookies.userId)}
-                        message={item.message}
-                        key={item.id}
-                      />
-                    ))
-                    .reverse()}
+        ) : (
+          <section className="bg-white col-span-2 flex flex-col space-y-4 rounded-2xl py-4 shadow-2xl my-20">
+            <section className="flex flex-col space-y-2">
+              {recipient != undefined ? (
+                <div className="flex items-center space-x-2 px-8">
+                  <img
+                    src={recipient.photo}
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <h1 className="font-semibold text-xl">{recipient.name}</h1>
+                </div>
+              ) : (
+                <h1 className="px-8 font-semibold text-xl">&nbsp;</h1>
+              )}
+              <hr />
+            </section>
+            <section className="px-8 w-full h-full max-h-screen min-h-screen flex flex-col space-y-6 justify-end">
+              {isSuccessShowPrivateChat ? (
+                <div className="flex flex-col overflow-y-auto space-y-2">
+                  <div className="flex flex-col items-end space-y-2">
+                    {dataPrivateChat.results
+                      .map((item, index) => (
+                        <BubbleMessage
+                          ref={item.length - 1 == index ? messagesEndRef : null}
+                          recipient={item.sender === parseInt(cookies.userId)}
+                          message={item.message}
+                          key={item.id}
+                        />
+                      ))
+                      .reverse()}
+                    <div
+                      ref={messagesEndRef}
+                      className="float-left clear-both"
+                    ></div>
+                  </div>
+                </div>
+              ) : null}
+              {recipient != undefined ? (
+                <div className="grid grid-cols-8 gap-6">
+                  <input
+                    placeholder="type message..."
+                    className="py-2 px-4 border-2 rounded-full col-span-7"
+                    value={message}
+                    onChange={onChangeMessage}
+                  />
                   <div
-                    ref={messagesEndRef}
-                    className="float-left clear-both"
-                  ></div>
+                    onClick={onMessage}
+                    className="bg-current-purple flex items-center justify-center rounded-full text-white text-2xl"
+                  >
+                    <FaPaperPlane />
+                  </div>
                 </div>
-              </div>
-            ) : null}
-            {recipient != undefined ? (
-              <div className="grid grid-cols-8 gap-6">
-                <input
-                  placeholder="type message..."
-                  className="py-2 px-4 border-2 rounded-full col-span-7"
-                  value={message}
-                  onChange={onChangeMessage}
-                />
-                <div
-                  onClick={onMessage}
-                  className="bg-current-purple flex items-center justify-center rounded-full text-white text-2xl"
-                >
-                  <FaPaperPlane />
-                </div>
-              </div>
-            ) : null}
+              ) : null}
+            </section>
           </section>
-        </section>
+        )}
       </section>
     </Layout>
   );
