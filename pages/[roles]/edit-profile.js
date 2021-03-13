@@ -36,6 +36,7 @@ export async function getServerSideProps({ req, params }) {
 function EditProfile() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
   const router = useRouter();
+  const hiddenFileInput = React.useRef(null);
   const { roles } = router.query;
   const queryClient = useQueryClient();
   const [cookies] = useCookies(["user"]);
@@ -184,8 +185,6 @@ function EditProfile() {
       }
     },
   });
-
-  const hiddenFileInput = React.useRef(null);
 
   const handleClickImage = () => {
     hiddenFileInput.current.click();

@@ -6,7 +6,10 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { registerRecruiter, registerWorker } from "../../../libs/api";
 import { useMutation } from "react-query";
-import Loading from "../../../components/handle/onLoading";
+import MutateLoading from "../../../components/handle/mutateLoading";
+import MutateError from "../../../components/handle/mutateError";
+import Error from "next/error";
+
 
 function Signup() {
   const router = useRouter();
@@ -52,20 +55,48 @@ function Signup() {
       .required("Konfirmasi password dibutuhkan"),
   });
 
-  const workerMutation = useMutation((data) => registerWorker(data), {
+  const {
+    mutate: mutateWorkerRegister,
+    isLoading: isWorkerRegisterLoading,
+    isError: isWorkerRegisterError,
+    reset: resetWorkerRegister,
+    error: errorWorkerRegister,
+  } = useMutation((data) => registerWorker(data), {
     onSuccess: () => {
       return router.push("/worker/auth/login");
-    }
+    },
   });
-  const recruiterMutation = useMutation((data) => registerRecruiter(data), {
+  const {
+    mutate: mutateRecruiterRegister,
+    isLoading: isRecruiterRegisterLoading,
+    isError: isRecruiterRegisterError,
+    reset: resetRecruiterRegister,
+    error: errorRecruiterRegister,
+  } = useMutation((data) => registerRecruiter(data), {
     onSuccess: () => {
       return router.push("/recruiter/auth/login");
     },
   });
 
+  if (isWorkerRegisterLoading || isRecruiterRegisterLoading) {
+    return <MutateLoading containerWidth="screen" containerHeight="screen" />;
+  }
+
+  const handleResetError = () => {
+    if(isWorkerRegisterError) resetWorkerRegister();
+    else if (isRecruiterRegisterError) resetRecruiterRegister();
+  };
+
   return (
     <Layout toggle={roles === "worker"} auth>
-      {roles === "worker" ? (
+      {isWorkerRegisterError || isRecruiterRegisterError ? (
+        <MutateError
+          resetError={handleResetError}
+          message={
+            errorWorkerRegister.toString() || errorRecruiterRegister.toString()
+          }
+        />
+      ) : roles === "worker" ? (
         <Formik
           validationSchema={workerSchema}
           initialValues={{
@@ -75,7 +106,7 @@ function Signup() {
             password: "",
             confirmPassword: "",
           }}
-          onSubmit={(values) => workerMutation.mutate(values)}
+          onSubmit={(values) => mutateWorkerRegister(values)}
         >
           {({
             handleChange,
@@ -180,7 +211,7 @@ function Signup() {
                   type="submit"
                   className="w-full text-white font-sans font-bold bg-yellow-500 p-3.5 rounded-md transition delay-150 duration-300 ease-in-out"
                 >
-                  {workerMutation.isLoading ? <Loading /> : "Daftar"}
+                  Daftar
                 </button>
               </div>
               <div className="text-center font-sans">
@@ -206,7 +237,7 @@ function Signup() {
             confirmPassword: "",
           }}
           validationSchema={recruiterSchema}
-          onSubmit={(values) => recruiterMutation.mutate(values)}
+          onSubmit={(values) => mutateRecruiterRegister(values)}
         >
           {({
             handleChange,
@@ -343,7 +374,7 @@ function Signup() {
                   type="submit"
                   className="w-full text-white font-sans font-bold bg-yellow-500 p-3.5 rounded-md transition delay-150 duration-300 ease-in-out"
                 >
-                  {recruiterMutation.isLoading ? <Loading /> : "Daftar"}
+                  Daftar
                 </button>
               </div>
               <div className="text-center font-sans">
@@ -358,7 +389,7 @@ function Signup() {
           )}
         </Formik>
       ) : (
-        <div></div>
+        <Error statusCode={404} />
       )}
     </Layout>
   );

@@ -2,6 +2,7 @@ import React from "react";
 import Layout from "../../../components/layout";
 import CardSkill from "../../../components/common/card-skill";
 import MutateError from "../../../components/handle/mutateError";
+import MutateLoading from "../../../components/handle/mutateLoading";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -62,14 +63,20 @@ function Profile() {
 
   const {
     mutate: sendMessage,
+    isLoading: isSendMessageLoading,
     isError: isSendMessageError,
     reset: resetSendMessage,
   } = useMutation((message) => sendChat(cookies.token, profileId, message), {
     // Always refetch after error or success:
+    onSuccess: () => router.push(`/${roles}/message`),
     onSettled: () => {
       queryClient.invalidateQueries([`${roles}-profile`]);
     },
   });
+
+  if (isSendMessageLoading) {
+    return <MutateLoading containerWidth="screen" containerHeight="screen" />;
+  }
 
   const profileValidation = Yup.object().shape({
     name: Yup.string(),
