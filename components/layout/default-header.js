@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import React from "react";
-import Link from "next/link";
 import { useQuery } from "react-query";
 import { FiMail, FiBell } from "react-icons/fi";
 import { useCookies } from "react-cookie";
@@ -29,9 +28,7 @@ function DefaultHeader() {
         </div>
         {cookies.token ? (
           <div className="hidden sm:flex items-center space-x-6">
-            <Link href="/">
-              <FiBell className="text-gray-500 text-2xl cursor-pointer" />
-            </Link>
+            <FiBell className="text-gray-500 text-2xl cursor-not-allowed" />
             <FiMail
               className="text-gray-500 text-2xl cursor-pointer"
               onClick={() => router.push(`/${roles}/message`)}

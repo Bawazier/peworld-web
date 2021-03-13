@@ -12,7 +12,7 @@ import {
   FaInstagram,
   FaGithub,
   FaLinkedin,
-  FaPlusSquare,
+  FaPlus,
 } from "react-icons/fa";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import {
@@ -339,9 +339,9 @@ function Profile() {
                         <button
                           type="button"
                           onClick={() => setAddPortofolio(!addPortofolio)}
-                          className="w-full h-full flex flex-col items-center justify-center space-y-2 items-center text-white bg-yellow-500"
+                          className="w-full h-full flex flex-col items-center justify-center space-y-2 items-center text-white bg-current-purple"
                         >
-                          <FaPlusSquare className="text-4xl w-full h-52" />
+                          <FaPlus className="text-6xl h-52" />
                           <h1 className="w-full bg-white text-black p-2">
                           Tambah Portofolio
                           </h1>
@@ -398,10 +398,10 @@ function Profile() {
                       className={
                         addWorkExp || updateWorkExp
                           ? "hidden"
-                          : "flex items-center justify-center text-white bg-yellow-500 p-4 rounded-2xl"
+                          : "flex items-center justify-center text-white bg-current-purple p-4 rounded-2xl"
                       }
                     >
-                      <FaPlusSquare className="text-6xl" />
+                      <FaPlus className="text-6xl" />
                     </button>
                   </div>
                 </section>
