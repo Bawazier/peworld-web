@@ -21,7 +21,7 @@ import { parseCookies } from "../../../helpers/parseCookies";
 export async function getServerSideProps({ req, params}) {
   const cookies = await parseCookies(req);
   const queryClient = new QueryClient();
-  if (Object.keys(cookies).length === 0 && cookies.constructor === Object) {
+  if (cookies.token === "null") {
     return {
       redirect: {
         destination: `/${params.roles}/auth/login`,

@@ -6,7 +6,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { login } from "../../../libs/api";
 import { useMutation } from "react-query";
-import Loading from "../../../components/handle/onLoading";
+import Loading from "../../../components/handle/mutateLoading";
 import { useCookies } from "react-cookie";
 import jwt_decode from "jwt-decode";
 
@@ -54,6 +54,10 @@ function Login() {
       onError: (err) => console.log(err),
     }
   );
+
+  if(isLoading){
+    return <Loading />;
+  }
 
   return (
     <Layout toggle={roles === "worker"} auth welcomeDescription={isError ? error.message : false}>
@@ -115,7 +119,7 @@ function Login() {
               )}
             </div>
             <div className="font-sans text-right hover:text-yellow-500">
-              <Link href="/auth/reset-password">
+              <Link href={`/${roles}/auth/reset-password`}>
                 <a>Lupa kata sandi?</a>
               </Link>
             </div>
@@ -126,7 +130,7 @@ function Login() {
                 type="submit"
                 className="w-full text-white font-sans font-bold bg-yellow-500 p-3.5 rounded-md transition delay-150 duration-300 ease-in-out"
               >
-                {isLoading ? <Loading /> : "Masuk"}
+                Masuk
               </button>
             </div>
             <div className="text-center font-sans">

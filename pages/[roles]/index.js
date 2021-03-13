@@ -16,7 +16,7 @@ import Error from "next/error";
 export async function getServerSideProps({ req, params }) {
   const cookies = await parseCookies(req);
   const queryClient = new QueryClient();
-  if (Object.keys(cookies).length === 0 && cookies.constructor === Object) {
+  if (cookies.token === "null") {
     return {
       redirect: {
         destination: "/worker/auth/login",
@@ -120,13 +120,10 @@ function Home() {
           <FaSearch className="text-gray-600 text-xl" />
         </div>
 
-        <form className="hidden sm:flex items-center justify-center border-l-2 px-4">
-          <i className="bg-transparent" aria-hidden={true}>
-            <FaSortDown className="text-gray-600 text-3xl" />
-          </i>
+        <div className="hidden sm:flex items-center justify-center border-l-2 px-4 relative">
           <select
             defaultValue="name"
-            className="w-full bg-transparent appearance-none text-sm font-bold"
+            className="w-auto bg-transparent appearance-none text-sm font-bold"
           >
             <option onClick={sortByCreatedAt} selected>
               Sort
@@ -152,7 +149,12 @@ function Home() {
               By fulltime
             </option>
           </select>
-        </form>
+          <div
+            className="bg-transparent pointer-events-none align-top h-full"
+          >
+            <FaSortDown className="text-gray-600 text-3xl" />
+          </div>
+        </div>
 
         <button
           onClick={onSearch}

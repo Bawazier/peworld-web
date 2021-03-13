@@ -32,7 +32,7 @@ import { parseCookies } from "../../helpers/parseCookies";
 
 export async function getServerSideProps({ req, params }) {
   const cookies = await parseCookies(req);
-  if (Object.keys(cookies).length === 0 && cookies.constructor === Object) {
+  if (cookies.token === "null") {
     return {
       redirect: {
         destination: `/${params.roles}/auth/login`,
@@ -56,7 +56,20 @@ function Profile() {
   const [updateWorkExp, setUpdateWorkExp] = useState(false);
   const [addPortofolio, setAddPortofolio] = useState(false);
   const [updatePortofolio, setUpdatePortofolio] = useState(false);
-  const [cookies, removeCookie] = useCookies(["user"]);
+  const [cookies, setCookie] = useCookies(["user"]);
+
+  const handleLogout = async () => {
+    await setCookie("token", null, {
+      path: "/",
+    });
+    router.push(`/${roles}/auth/login`);
+    setCookie("role", null, {
+      path: "/",
+    });
+    setCookie("userId", null, {
+      path: "/",
+    });
+  };
 
   const { data, isSuccess, isError } = useQuery(
     [`${roles}-profile`],
@@ -203,13 +216,7 @@ function Profile() {
                   Kembali
                 </button>
                 <button
-                  onClick={() =>
-                    removeCookie("token", {
-                      path: "/",
-                      maxAge: 3600, // Expires after 1hr
-                      sameSite: true,
-                    })
-                  }
+                  onClick={handleLogout}
                   className="text-white bg-current-purple text-xl py-2 px-4 rounded-md"
                 >
                   Keluar

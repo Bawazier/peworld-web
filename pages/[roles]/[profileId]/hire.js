@@ -13,6 +13,22 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useRouter } from "next/router";
 import Error from "next/error";
 import { useCookies } from "react-cookie";
+import { parseCookies } from "../../../helpers/parseCookies";
+
+export async function getServerSideProps({ req, params }) {
+  const cookies = await parseCookies(req);
+  if (cookies.token === "null") {
+    return {
+      redirect: {
+        destination: `/${params.roles}/auth/login`,
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: {},
+  };
+}
 
 function Profile() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
