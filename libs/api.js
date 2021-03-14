@@ -42,15 +42,23 @@ export const getProfileWorker = async (token) => {
   const { data } = await http(token).get("worker/account");
   return data;
 };
-export const getProfileRecruiter = async (token) => {
-  const { data } = await http(token).get("recruiter/account");
-  return data;
-};
 export const updateProfile = (token, data) => {
   return http(token).patch("worker/account", qs.stringify(data));
 };
 export const updateImageProfile = (token, data) => {
   return http(token).patch("worker/account", data);
+};
+
+// * PROFILE RECRUITER API
+export const getProfileRecruiter = async (token) => {
+  const { data } = await http(token).get("recruiter/account");
+  return data;
+};
+export const updateProfileRecruiter = (token, data) => {
+  return http(token).patch("recruiter/account", qs.stringify(data));
+};
+export const updateImageProfileRecruiter = (token, data) => {
+  return http(token).patch("recruiter/account", data);
 };
 
 // * PROFILE COMPANY API
