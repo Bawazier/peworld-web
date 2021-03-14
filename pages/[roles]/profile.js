@@ -32,7 +32,7 @@ import { parseCookies } from "../../helpers/parseCookies";
 
 export async function getServerSideProps({ req, params }) {
   const cookies = await parseCookies(req);
-  if (cookies.token === "null") {
+  if (Object.keys(cookies).length === 0 && cookies.token === "null") {
     return {
       redirect: {
         destination: `/${params.roles}/auth/login`,
@@ -440,6 +440,18 @@ function Profile() {
             className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
           >
             Edit Profile
+          </button>
+          <button
+            onClick={() => router.back()}
+            className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
+          >
+            Kembali
+          </button>
+          <button
+            onClick={handleLogout}
+            className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
+          >
+            Keluar
           </button>
           <div className="flex space-x-4 pb-10 justify-around">
             <a

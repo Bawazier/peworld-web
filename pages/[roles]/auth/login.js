@@ -10,6 +10,7 @@ import MutateLoading from "../../../components/handle/mutateLoading";
 import MutateError from "../../../components/handle/mutateError";
 import { useCookies } from "react-cookie";
 import jwt_decode from "jwt-decode";
+import Error from "next/error";
 
 function Login() {
   const router = useRouter();
@@ -51,6 +52,8 @@ function Login() {
           maxAge: 172800, // Expires after 2d
           sameSite: true,
         });
+        console.log(cookies);
+        router.push(roleId == "2" ? "/worker" : "/recruiter");
       },
       onError: (err) => console.log(err),
     }
@@ -58,6 +61,9 @@ function Login() {
 
   if(isLoading){
     return <MutateLoading containerWidth="screen" containerHeight="screen" />;
+  }
+  if (roles !== "worker" && roles !== "recruiter") {
+    return <Error statusCode={404} />;
   }
 
   return (
@@ -76,13 +82,7 @@ function Login() {
           }}
           validationSchema={schema}
           onSubmit={(values) =>
-            mutate(values, {
-              onSuccess: ({ data }) => {
-                console.log(cookies);
-                const { roleId } = jwt_decode(data.token);
-                return router.push(roleId == "2" ? "/worker" : "/recruiter");
-              },
-            })
+            mutate(values)
           }
         >
           {({
