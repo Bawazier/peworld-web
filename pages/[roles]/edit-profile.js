@@ -9,6 +9,8 @@ import {
   getDetailsUser,
   updateProfile,
   updateImageProfile,
+  updateProfileRecruiter,
+  updateImageProfileRecruiter,
   updateCompany,
   updateImageCompany,
 } from "../../libs/api";
@@ -41,9 +43,10 @@ function EditProfile() {
   const queryClient = useQueryClient();
   const [cookies] = useCookies(["user"]);
 
+
   const { data, isSuccess, isError } = useQuery(
     [`${roles}-profile`],
-    () => getDetailsUser(cookies.token, parseInt(cookies.id)),
+    () => getDetailsUser(cookies.token, parseInt(cookies.userId)),
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,
@@ -79,7 +82,16 @@ function EditProfile() {
       queryClient.invalidateQueries([`${roles}-profile`]);
     },
   });
-  
+  const {
+    mutate: mutateProfileRecruiter,
+    isError: isProfileRecruiterError,
+    reset: resetProfileRecruiter,
+  } = useMutation((data) => updateProfileRecruiter(cookies.token, data), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
 
   const {
     mutate: mutateImageProfile,
@@ -91,7 +103,16 @@ function EditProfile() {
       queryClient.invalidateQueries([`${roles}-profile`]);
     },
   });
-
+  const {
+    mutate: mutateImageProfileRecruiter,
+    isError: isImageProfileRecruiterError,
+    reset: resetImageProfileRecruiter,
+  } = useMutation((data) => updateImageProfileRecruiter(cookies.token, data), {
+    // Always refetch after error or success:
+    onSettled: () => {
+      queryClient.invalidateQueries([`${roles}-profile`]);
+    },
+  });
   const {
     mutate: mutateImageCompany,
     isError: isImageCompanyError,
@@ -106,24 +127,31 @@ function EditProfile() {
   const handleResetError = () => {
     if (isCompanyError) resetCompany();
     else if (isProfileError) resetProfile();
+    else if (isProfileRecruiterError) resetProfileRecruiter();
     else if (isImageProfileError) resetImageProfile();
+    else if (isImageProfileRecruiterError) resetImageProfileRecruiter();
     else if (isImageCompanyError) resetImageCompany();
     else false;
   };
 
   const profileValidation = Yup.object().shape({
-    name: Yup.string(),
-    jobTitle: Yup.string(),
-    address: Yup.string(),
-    company: Yup.string(),
-    bio: Yup.string().max(255, "Deskripsi tidak dapat lebih dari 255 karakter"),
-    email: Yup.string().email("Masukkan alamat email dengan benar"),
-    instagram: Yup.string(),
+    name: Yup.string().required("Nama tidak boleh kosong"),
+    jobTitle: Yup.string().required("Job Title/Bidang tidak boleh kosong"),
+    address: Yup.string().nullable(true),
+    company: Yup.string().nullable(true),
+    bio: Yup.string()
+      .max(255, "Deskripsi tidak dapat lebih dari 255 karakter")
+      .nullable(true),
+    email: Yup.string()
+      .email("Masukkan alamat email dengan benar")
+      .required("Email tidak boleh kosong"),
+    instagram: Yup.string().nullable(true),
     phoneNumber: Yup.string()
       .min(11, "Minimal karakter no handphone adalah 11")
-      .max(12, "Maksimal karakter no handphone adalah 12"),
-    github: Yup.string(),
-    linkedin: Yup.string(),
+      .max(12, "Maksimal karakter no handphone adalah 12")
+      .nullable(true),
+    github: Yup.string().nullable(true),
+    linkedin: Yup.string().nullable(true),
   });
 
   const {
@@ -161,7 +189,7 @@ function EditProfile() {
             .slice(0, -1)
           : "",
     },
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       const profileValues = {
         name: values.name,
         jobTitle: values.jobTitle,
@@ -179,13 +207,14 @@ function EditProfile() {
         field: values.jobTitle,
         city: values.address,
       };
-      if(cookies.role === "2"){
-        return mutateProfile(profileValues);
-      } else if(cookies.role === "3"){
-        return mutateProfile(profileValues, {
+      if (cookies.role === "2") {
+        await mutateProfile(profileValues);
+      } else if (cookies.role === "3") {
+        await mutateProfileRecruiter(profileValues, {
           onSuccess: () => mutateCompany(companyValues),
         });
       }
+      router.push(`/${roles}/profile`);
     },
   });
 
@@ -208,6 +237,7 @@ function EditProfile() {
         await mutateImageProfile(imageData);
       }
       if(cookies.role === "3"){
+        await mutateImageProfileRecruiter(imageData);
         await mutateImageCompany(imageData);
       }
     }
@@ -274,7 +304,9 @@ function EditProfile() {
             </section>
             {isCompanyError ||
             isProfileError ||
+            isProfileRecruiterError ||
             isImageProfileError ||
+            isImageProfileRecruiterError ||
             isImageCompanyError ? (
                 <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 shadow-2xl my-20">
                   <MutateError

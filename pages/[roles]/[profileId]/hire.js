@@ -40,7 +40,7 @@ function Profile() {
 
   const { data, isSuccess, isError } = useQuery(
     [`${roles}-profile`],
-    () => getDetailsUser(cookies.token, parseInt(cookies.id)),
+    () => getDetailsUser(cookies.token, parseInt(cookies.userId)),
     {
       refetchOnMount: false,
       refetchOnWindowFocus: false,

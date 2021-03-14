@@ -435,24 +435,26 @@ function Profile() {
               {data.results.bio}
             </p>
           </div>
-          <button
-            onClick={() => router.push(`/${roles}/edit-profile`)}
-            className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
-          >
-            Edit Profile
-          </button>
-          <button
-            onClick={() => router.back()}
-            className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
-          >
-            Kembali
-          </button>
-          <button
-            onClick={handleLogout}
-            className="text-white bg-current-purple text-xl py-2 px-32 rounded-md"
-          >
-            Keluar
-          </button>
+          <div className="flex flex-col space-y-2">
+            <button
+              onClick={() => router.push(`/${roles}/edit-profile`)}
+              className="text-white bg-current-purple text-xl py-2 px-24 rounded-md"
+            >
+                Edit Profile
+            </button>
+            <button
+              onClick={() => router.back()}
+              className="text-white bg-current-purple text-xl py-2 px-24 rounded-md"
+            >
+                Kembali
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-white bg-current-purple text-xl py-2 px-24 rounded-md"
+            >
+                Keluar
+            </button>
+          </div>
           <div className="flex space-x-4 pb-10 justify-around">
             <a
               href={data.results.email}

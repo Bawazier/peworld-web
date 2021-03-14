@@ -132,29 +132,15 @@ function Home() {
               Sort
             </option>
             <option onClick={sortByName}>By Nama</option>
-            <option
-              onClick={sortBySkill}
-              disabled={isSuccess && data.results.Company}
-            >
-              By Skill
-            </option>
             <option onClick={() => setSort("address")}>By Lokasi</option>
-            <option
-              onClick={sortByJobTitle}
-              disabled={isSuccess && data.results.Company}
-            >
-              By freelance
-            </option>
-            <option
-              onClick={sortByJobTitle}
-              disabled={isSuccess && data.results.Company}
-            >
-              By fulltime
+            {cookies.role === "3" && (
+              <option onClick={sortBySkill}>By Skill</option>
+            )}
+            <option onClick={sortByJobTitle} disabled={cookies.role === "2"}>
+              By Job Title
             </option>
           </select>
-          <div
-            className="bg-transparent pointer-events-none align-top h-full"
-          >
+          <div className="bg-transparent pointer-events-auto align-top h-full">
             <FaSortDown className="text-gray-600 text-3xl" />
           </div>
         </div>
