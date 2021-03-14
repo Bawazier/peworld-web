@@ -85,6 +85,9 @@ function Profile() {
   if (isError) {
     return <Error statusCode={500} />;
   }
+  if (roles !== "worker" && roles !== "recruiter") {
+    return <Error statusCode={404} />;
+  }
 
   const togglePortfolio = () => {
     setToastPortfolio(true);

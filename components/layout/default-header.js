@@ -5,6 +5,7 @@ import { FiMail, FiBell } from "react-icons/fi";
 import { useCookies } from "react-cookie";
 import { useRouter } from "next/router";
 import { getDetailsUser } from "../../libs/api";
+import Link from "next/link";
 
 function DefaultHeader() {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
@@ -23,10 +24,10 @@ function DefaultHeader() {
   return (
     <header className="shadow-xl">
       <div className="flex flex-row mx-auto py-4 justify-between items-center w-4/5">
-        <div>
-          <img src="../icons/peworld-a.svg" className="w-36" />
-        </div>
-        {cookies.token ? (
+        <Link href={roles ? `/${roles}` : "/"}>
+          <img src="../icons/peworld-a.svg" className="w-36 cursor-pointer" />
+        </Link>
+        {cookies.token && roles ? (
           <div className="hidden sm:flex items-center space-x-6">
             <FiBell className="text-gray-500 text-2xl cursor-not-allowed" />
             <FiMail

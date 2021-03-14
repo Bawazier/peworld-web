@@ -15,6 +15,7 @@ import { dehydrate } from "react-query/hydration";
 import { useCookies } from "react-cookie";
 import { parseCookies } from "../../helpers/parseCookies";
 import { useRouter } from "next/router";
+import Error from "next/error";
 
 export async function getServerSideProps({ req, params }) {
   const cookies = await parseCookies(req);
@@ -61,6 +62,10 @@ function Message() {
       retryDelay: 3000,
     }
   );
+
+  if (roles !== "worker" && roles !== "recruiter") {
+    return <Error statusCode={404} />;
+  }
 
   const {
     data: dataPrivateChat,

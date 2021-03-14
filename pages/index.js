@@ -10,7 +10,6 @@ import {
 } from "react-icons/fa";
 
 export default function Home() {
-
   return (
     <Layout>
       <section className="w-full max-h-screen py-8 sm:grid grid-cols-2 gap-x-2 items-center justify-start">
