@@ -1,0 +1,53 @@
+version: "3.7"
+
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    ports:
+      - 3306:3306
+    volumes:
+       - hire-job-data:/var/lib/mysql
+    networks:
+      - hire-job-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+      - MYSQL_DATABASE=hireJob_development
+  hire-job-api:
+    container_name: hire-job-api
+    image: 5156797296/hire-job-api:1.0
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+    environment:
+      - DB_DEV=hireJob_development
+      - DB_TEST=hireJob_test
+      - DB_PROD=hireJob_production
+      - DB_USERNAME=root
+      - DB_PASSWORD=12345678
+      - DB_HOST=mysql
+      - DB_PORT=3306
+    volumes:
+       - hire-job-data:/var/lib/mysql
+    networks:
+      - hire-job-network
+  hire-job-web:
+    container_name: hire-job-web
+    image: 5156797296/hire-job-web:1.0
+    ports:
+      - 3000:3000
+    depends_on:
+      - hire-job-api
+    environment:
+      - NEXT_PUBLIC_API_URL=hire-job-api:8080
+      - NEXT_PUBLIC_API_URL_IMAGE=hire-job-api:8080/assets/
+    networks:
+      - hire-job-network
+    volumes:
+       - hire-job-data:/var/lib/mysql
+volumes:
+   hire-job-data:
+networks:
+  hire-job-network:
+    name: hire-job-network
