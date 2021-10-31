@@ -20,6 +20,7 @@ services:
       - 8080:8080
     depends_on:
       - mysql
+      - hire-job-web
     environment:
       - DB_DEV=hireJob_development
       - DB_TEST=hireJob_test
@@ -38,7 +39,7 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - hire-job-api
+      - mysql
     environment:
       - NEXT_PUBLIC_API_URL=hire-job-api:8080
       - NEXT_PUBLIC_API_URL_IMAGE=hire-job-api:8080/assets/
