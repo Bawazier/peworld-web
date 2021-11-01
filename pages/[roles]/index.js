@@ -6,10 +6,10 @@ import Pagination from "../../components/common/pagination";
 // import Link from "next/link";
 import { FaSearch, FaSortDown } from "react-icons/fa";
 import { getHome, getDetailsUser } from "../../libs/api";
-import {QueryClient, useQuery} from "react-query";
+import { QueryClient, useQuery } from "react-query";
 import { dehydrate } from "react-query/hydration";
 import { useCookies } from "react-cookie";
-import {parseCookies} from "../../helpers/parseCookies";
+import { parseCookies } from "../../helpers/parseCookies";
 import { useRouter } from "next/router";
 import Error from "next/error";
 
@@ -79,10 +79,10 @@ function Home() {
     window.scrollTo(0, 0);
   };
 
-  const sortByCreatedAt = async () => {
-    await setSort("createdAt");
-    await setSortType("ASC");
-  };
+  // const sortByCreatedAt = async () => {
+  //   await setSort("createdAt");
+  //   await setSortType("ASC");
+  // };
   const sortByName = async () => {
     await setSort("name");
     await setSortType("ASC");
@@ -99,67 +99,120 @@ function Home() {
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
-  const onSearch = async () => {
-    await setSearchVal(search);
-    setSearch("");
+  const onSearch = async (e) => {
+    if(e.key === "Enter"){
+      await setSearchVal(search);
+      // setSearch("");
+    }
+    
   };
 
   const getDetailUser = async (id) => {
     return router.push(`/${roles}/${id}`);
   };
 
-  
-
   return (
     <Layout>
       <section className="px-0 grid-cols-3 sm:z-50 bg-white grid grid-cols-7 gap-2 py-2 px-4 flex items-center rounded-md shadow-xl my-6">
-        <div className="col-span-2 sm:flex items-center col-span-5 px-2">
-          <input
-            placeholder="Search for any skill"
-            className="w-full text-xl"
-            onChange={handleSearch}
-            value={search}
-          />
-          <FaSearch className="text-gray-600 text-xl" />
-        </div>
-
-        <div className="hidden sm:flex items-center justify-center border-l-2 px-4 relative">
-          <select
-            defaultValue="name"
-            className="w-auto bg-transparent appearance-none text-sm font-bold"
-          >
-            <option onClick={sortByCreatedAt} selected>
-              Sort
-            </option>
-            <option onClick={sortByName}>By Nama</option>
-            <option onClick={() => setSort("address")}>By Lokasi</option>
-            {cookies.role === "3" && (
-              <option onClick={sortBySkill}>By Skill</option>
-            )}
-            <option onClick={sortByJobTitle} disabled={cookies.role === "2"}>
-              By Job Title
-            </option>
-          </select>
-          <div className="bg-transparent pointer-events-auto align-top h-full">
-            <FaSortDown className="text-gray-600 text-3xl" />
+      </section>
+      <section className="border border-gray-400 rounded-lg overflow-hidden">
+        <div className="flex flex-row items-center justify-between p-4">
+          <nav className="flex items-center justify-center">
+            <button className="text-purple-500 bg-transparent border-l border-t border-b border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-l outline-none focus:outline-none mb-1 ease-linear transition-all duration-150">
+              Worker
+            </button>
+            <button className="text-purple-500 bg-transparent border-t border-b border-r border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-r outline-none focus:outline-none mb-1 ease-linear transition-all duration-150">
+              Corporation
+            </button>
+          </nav>
+          <div className="flex flex-row items-center justify-center">
+            <div>
+              <a className="grid grid-cols-3 grap-0 text-gray-800">
+                <label>Short : </label>
+                <select
+                  defaultValue="name"
+                  className="w-14 bg-transparent appearance-none font-bold"
+                >
+                  <option onClick={sortByName} selected>
+                    Nama
+                  </option>
+                  <option onClick={() => setSort("address")}>Lokasi</option>
+                  {/* <option onClick={sortByCreatedAt} selected>
+                    New
+                  </option> */}
+                  {cookies.role === "3" && (
+                    <option onClick={sortBySkill}>Skill</option>
+                  )}
+                  <option
+                    onClick={sortByJobTitle}
+                    disabled={cookies.role === "2"}
+                  >
+                    Job Title
+                  </option>
+                </select>
+                <FaSortDown />
+              </a>
+            </div>
+            <div>
+              <div className="relative flex w-full flex-wrap items-stretch">
+                <span
+                  className="
+                    z-10
+                    h-full
+                    leading-snug
+                    font-normal
+                    absolute
+                    text-center text-gray-400
+                    absolute
+                    bg-transparent
+                    rounded
+                    text-base
+                    items-center
+                    justify-center
+                    w-8
+                    pl-2
+                    py-1
+                  "
+                >
+                  <FaSearch className="h-full" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search"
+                  onChange={handleSearch}
+                  value={search}
+                  onKeyPress={onSearch}
+                  className="
+                    px-2
+                    py-1
+                    placeholder-gray-400
+                    text-gray-600
+                    relative
+                    bg-white bg-white
+                    rounded
+                    text-sm
+                    border border-gray-400
+                    outline-none
+                    focus:outline-none focus:ring
+                    w-full
+                    pl-10
+                  "
+                />
+              </div>
+            </div>
           </div>
         </div>
-
-        <button
-          onClick={onSearch}
-          className="text-white bg-current-purple text-xl p-2 rounded-md"
-        >
-          Search
-        </button>
-      </section>
-      <section className="grid grid-cols-1 gap-8 divide-y divide-gray-200 bg-white rounded-md shadow-xl p-4 my-6">
-        {isSuccess &&
-          data?.results.map((item) => (
-            <CardWorker
-              data={item}
-              getDetailUser={() => getDetailUser(item.id)}
-            />
-          ))}
+        <hr className="divide-gray-300" />
+        <div className="py-4 grid grid-cols-1 gap-y-4 divide-y divide-gray-300">
+          {isSuccess &&
+            data?.results.map((item, index) => (
+              <CardWorker
+                index={index}
+                data={item}
+                getDetailUser={() => getDetailUser(item.id)}
+              />
+            ))}
+        </div>
       </section>
       <section className="my-6">
         <Pagination
