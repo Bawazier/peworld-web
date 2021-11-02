@@ -113,8 +113,9 @@ function Home() {
 
   return (
     <Layout>
-      <section className="w-full h-24 my-4 bg-gray-200">
-
+      <section className="h-40 my-4 flex flex-col items-center justify-center">
+        <h1 className="text-4xl text-gray-800 tracking-wide mb-2 font-black">Trending</h1>
+        <p className="text-gray-500">These are the developers building the hot tools today.</p>
       </section>
       <section className="border border-gray-200 rounded-lg overflow-hidden">
         <div className="flex flex-row items-center justify-between p-4 bg-gray-200">
