@@ -45,7 +45,7 @@ function Home() {
   const router = useRouter();
   const { roles } = router.query;
   const [page, setPage] = useState(1);
-  const [sort, setSort] = useState("createdAt");
+  const [sort, setSort] = useState("name");
   const [sortType, setSortType] = useState("ASC");
   const [search, setSearch] = useState("");
   const [searchVal, setSearchVal] = useState("");
@@ -113,13 +113,14 @@ function Home() {
 
   return (
     <Layout>
-      <section className="px-0 grid-cols-3 sm:z-50 bg-white grid grid-cols-7 gap-2 py-2 px-4 flex items-center rounded-md shadow-xl my-6">
+      <section className="w-full h-24 my-4 bg-gray-200">
+
       </section>
-      <section className="border border-gray-400 rounded-lg overflow-hidden">
-        <div className="flex flex-row items-center justify-between p-4">
+      <section className="border border-gray-200 rounded-lg overflow-hidden">
+        <div className="flex flex-row items-center justify-between p-4 bg-gray-200">
           <nav className="flex items-center justify-center">
-            <button className="text-purple-500 bg-transparent border-l border-t border-b border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-l outline-none focus:outline-none mb-1 ease-linear transition-all duration-150">
-              Worker
+            <button className="text-white bg-purple-500 border-l border-t border-b border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-l outline-none focus:outline-none mb-1 ease-linear transition-all duration-150">
+              Developer
             </button>
             <button className="text-purple-500 bg-transparent border-t border-b border-r border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-r outline-none focus:outline-none mb-1 ease-linear transition-all duration-150">
               Corporation
@@ -128,15 +129,15 @@ function Home() {
           <div className="flex flex-row items-center justify-center">
             <div>
               <a className="grid grid-cols-3 grap-0 text-gray-800">
-                <label>Short : </label>
+                <label>Short :</label>
                 <select
                   defaultValue="name"
                   className="w-14 bg-transparent appearance-none font-bold"
                 >
                   <option onClick={sortByName} selected>
-                    Nama
+                    Name
                   </option>
-                  <option onClick={() => setSort("address")}>Lokasi</option>
+                  <option onClick={() => setSort("address")}>Address</option>
                   {/* <option onClick={sortByCreatedAt} selected>
                     New
                   </option> */}
@@ -203,7 +204,7 @@ function Home() {
           </div>
         </div>
         <hr className="divide-gray-300" />
-        <div className="py-4 grid grid-cols-1 gap-y-4 divide-y divide-gray-300">
+        <div className="pb-4 grid grid-cols-1 gap-y-4 divide-y divide-gray-300">
           {isSuccess &&
             data?.results.map((item, index) => (
               <CardWorker

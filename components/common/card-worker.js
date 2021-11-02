@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-key */
 /* eslint-disable react/prop-types */
 import React from "react";
-// import CardSkill from "./card-skill";
-import { FaBuilding } from "react-icons/fa";
+import Image from "next/image";
+import { FaBuilding, FaFire } from "react-icons/fa";
 
 function CardWorker({ index, data, getDetailUser }) {
   const { NEXT_PUBLIC_API_URL_IMAGE } = process.env;
@@ -14,44 +14,69 @@ function CardWorker({ index, data, getDetailUser }) {
         </a>
         <div className="mx-4">
           <a href="#" onClick={getDetailUser}>
-            <img
-              className="w-14 h-14 rounded-full flex items-center justify-center"
+            <Image
+              src={data.photo ? `${NEXT_PUBLIC_API_URL_IMAGE}${data.photo}` : "/images/person.png"}
+              placeholder="blur"
               alt={data.name}
-              src={`${NEXT_PUBLIC_API_URL_IMAGE}${data.photo}`}
+              width={48}
+              height={48}
+              priority
+              layout="fixed"
+              className="rounded-full object-center"
             />
           </a>
         </div>
         <div className="flex flex-row flex-auto flex-1">
           <div className="grid grid-cols-12 gap-x-14">
             <div className="col-span-6">
-              <h1 className="text-2xl text-purple-700">
+              <h1 className="text-xl text-purple-700">
                 <a href="#" onClick={getDetailUser}>
                   {data.name}
                 </a>
               </h1>
-              <p className="text-gray-400">
+              <p className="text-gray-400 text-sm truncate">
                 <a href="#" onClick={getDetailUser}>
                   {data.jobTitle}
                 </a>
               </p>
             </div>
             <div className="col-span-6">
-              <div>
+              {data.Company && (
                 <article>
-                  <div className="flex flex-row items-center text-gray-400">
+                  <div className="flex flex-row items-center text-gray-400 font-bold uppercase text-xs">
                     <FaBuilding className="mr-2" />
                     Corporation
                   </div>
-                  <h1 className="text-lg text-purple-700">
+                  <h1 className="text-purple-700">
                     <a href="#" onClick={getDetailUser}>
                       {data.Company.name}
                     </a>
                   </h1>
-                  <div className="text-gray-400" href="#" onClick={getDetailUser}>
+                  <div className="text-gray-400 text-sm truncate" href="#" onClick={getDetailUser}>
                     {data.Company.field || "lorem ipsum dit amaet n"}
                   </div>
                 </article>
-              </div>
+              )}
+              {data.WorkerSkills && (
+                <article>
+                  <div className="flex flex-row items-center text-gray-400 font-bold uppercase text-xs mb-2">
+                    <FaFire className="mr-2" />
+                    mastered skills
+                  </div>
+                  <div className="flex flex-row items-center text-gray-400">
+                    {data.WorkerSkills.map((item, index) => index < 3 && (
+                      <div className="bg-yellow-400 text-white hover:bg-yellow-400 hover:text-white active:bg-yellow-400 font-bold uppercase text-xs px-2 py-px rounded outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 mr-2">
+                        <a href="#" onClick={getDetailUser}>
+                          {item.Skill.name}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                  {/* <div className="text-gray-400" href="#" onClick={getDetailUser}>
+                    {data.Company.field || "lorem ipsum dit amaet n"}
+                  </div> */}
+                </article>
+              )}
             </div>
           </div>
           <div className="flex flex-row items-start justify-end flex-1">
