@@ -7,7 +7,7 @@ function Pagination({ pageInfo, prevPage, nextPage, page }) {
   return (
     <div className="flex items-center justify-end">
       <button
-        className={`flex items-center text-purple-500 bg-transparent border-l border-t border-b border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-l outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 ${!pageInfo.prevLink && "cursor-not-hidden"}`}
+        className={`flex items-center text-purple-500 bg-transparent border-l border-t border-b border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-l outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 ${!pageInfo.prevLink && "hidden"}`}
       >
         <BiLeftArrow className="text-sm ml-px" onClick={pageInfo.prevLink ? prevPage : null} />
         Prev
@@ -16,7 +16,7 @@ function Pagination({ pageInfo, prevPage, nextPage, page }) {
         {page}
       </button>
       <button
-        className={`flex items-center text-purple-500 bg-transparent border-t border-b border-r border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-r outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 ${!pageInfo.nextLink && "cursor-not-allowed"}`}
+        className={`flex items-center text-purple-500 bg-transparent border-t border-b border-r border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded-r outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 ${!pageInfo.nextLink && "hidden"}`}
       >
         Next
         <BiRightArrow className="text-sm ml-px" onClick={pageInfo.nextLink ? nextPage : null} />

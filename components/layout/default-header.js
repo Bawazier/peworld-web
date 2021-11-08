@@ -63,16 +63,16 @@ function DefaultHeader() {
             />
           </div>
         ) : (
-          <div className="hidden sm:flex space-x-6">
+          <div className="hidden sm:flex space-x-4">
             <button
               onClick={() => router.push("/worker/auth/login")}
-              className="font-sans border-2 border-current-purple text-current-purple rounded-md text-lg font-bold px-4 py-2"
+              className="text-purple-500 bg-transparent border border-purple-500 hover:bg-purple-500 hover:text-white active:bg-purple-600 font-bold uppercase text-xs px-4 py-2 rounded outline-none focus:outline-none mb-1 ease-linear transition-all duration-150"
             >
               Masuk
             </button>
             <button
               onClick={() => router.push("/worker/auth/signup")}
-              className="font-sans bg-current-purple text-white rounded-md text-lg font-bold px-4 py-2"
+              className="bg-purple-500 text-white hover:bg-purple-700 hover:text-white active:bg-purple-700 font-bold uppercase text-xs px-4 py-2 rounded outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 mr-2"
             >
               Daftar
             </button>
