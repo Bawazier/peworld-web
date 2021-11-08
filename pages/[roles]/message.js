@@ -1,5 +1,6 @@
 /* eslint-disable no-constant-condition */
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Layout from "../../components/layout";
 import BubbleMessage from "../../components/common/bubble-message";
 import MutateError from "../../components/handle/mutateError";
@@ -28,9 +29,8 @@ export async function getServerSideProps({ req, params }) {
       },
     };
   }
-  await queryClient.prefetchQuery(
-    [`${params.roles}-message-list-person`],
-    () => getAllList(cookies.token)
+  await queryClient.prefetchQuery([`${params.roles}-message-list-person`], () =>
+    getAllList(cookies.token)
   );
   return {
     props: {
@@ -49,7 +49,6 @@ function Message() {
   const queryClient = useQueryClient();
   const { roles } = router.query;
   const [cookies] = useCookies(["user"]);
-  
 
   const { data, isSuccess } = useQuery(
     [`${roles}-message-list-person`],
@@ -115,39 +114,53 @@ function Message() {
         <section className="bg-white flex flex-col space-y-6 rounded-2xl py-4 shadow-2xl my-20 min-h-screen">
           <section className="flex flex-col space-y-2">
             <h1 className="px-8 align-middle font-semibold text-2xl h-12">
-              Chat
+              Messaging
             </h1>
             <hr />
           </section>
-          <section className="px-8 grid grid-cols-1 gap-2">
+          <section className="px-4 grid grid-cols-1 gap-2">
             {isSuccess && data.results.length ? (
-              data.results.map((item) => {
+              data.results.map((item, index) => {
                 if (item.sender === parseInt(cookies.userId)) {
                   return (
-                    <div
-                      className="grid grid-cols-5 gap-2"
+                    <article
+                      className="grid grid-cols-9 gap-2 border-b"
                       onClick={() => setRecipient(item.RecipientDetails)}
                     >
-                      <img
-                        src={
-                          item.RecipientDetails.photo
-                            ? NEXT_PUBLIC_API_URL_IMAGE +
+                      <div className="flex flex-row col-start-1 col-end-3">
+                        <span className="text-sm text-gray-400">
+                          {index + 1}
+                        </span>
+                        <div className="mx-2">
+                          <Image
+                            src={
                               item.RecipientDetails.photo
-                            : "../images/person.png"
-                        }
-                        className="w-12 h-12 rounded-full"
-                      />
-                      <div className="col-span-4">
-                        <h1 className="font-semibold text-xl">
+                                ? NEXT_PUBLIC_API_URL_IMAGE +
+                                  item.RecipientDetails.photo
+                                : "/images/person.png"
+                            }
+                            placeholder="blur"
+                            alt={item.RecipientDetails.name}
+                            width={42}
+                            height={42}
+                            priority
+                            layout="fixed"
+                            className="rounded-full object-center"
+                          />
+                        </div>
+                      </div>
+                      <div className="col-start-3 col-span-5 text-left">
+                        <h1 className="text-lg text-purple-700 truncate">
                           {item.RecipientDetails.name}
                         </h1>
-                        <p className="text-gray-400">
-                          {item.message.length < 10
-                            ? item.message
-                            : item.message.substring(0, 20).concat("...")}
+                        <p className="text-gray-400 text-xs overflow-ellipsis overflow-hidden truncate">
+                          {item.RecipientDetails.name}: {item.message}
                         </p>
                       </div>
-                    </div>
+                      <span className="text-sm text-gray-400 col-end-10 col-span-2 text-right">
+                        Sep 21
+                      </span>
+                    </article>
                   );
                 } else {
                   return (
@@ -199,13 +212,23 @@ function Message() {
         ) : (
           <section className="bg-white col-span-2 flex flex-col space-y-4 rounded-2xl py-4 shadow-2xl my-20">
             <section className="flex flex-col space-y-2">
-              {recipient != undefined ? (
+              {recipient ? (
                 <div className="flex items-center space-x-2 px-8">
-                  <img
-                    src={recipient.photo}
-                    className="w-12 h-12 rounded-full"
+                  <Image
+                    src={
+                      recipient.photo
+                        ? NEXT_PUBLIC_API_URL_IMAGE + recipient.photo
+                        : "/images/person.png"
+                    }
+                    placeholder="blur"
+                    alt={recipient.name}
+                    width={48}
+                    height={48}
+                    priority
+                    layout="fixed"
+                    className="rounded-full object-center"
                   />
-                  <h1 className="font-semibold text-xl">{recipient.name}</h1>
+                  <h1 className="text-xl text-purple-700">{recipient.name}</h1>
                 </div>
               ) : (
                 <h1 className="px-8 font-semibold text-xl">&nbsp;</h1>

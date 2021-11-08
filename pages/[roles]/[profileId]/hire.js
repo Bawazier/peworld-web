@@ -1,6 +1,8 @@
+/* eslint-disable react/jsx-key */
+/* eslint-disable no-undef */
 import React from "react";
+import Image from "next/image";
 import Layout from "../../../components/layout";
-import CardSkill from "../../../components/common/card-skill";
 import MutateError from "../../../components/handle/mutateError";
 import MutateLoading from "../../../components/handle/mutateLoading";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -122,36 +124,42 @@ function Profile() {
       <section className="z-50 grid grid-cols-3 gap-8">
         <section className="bg-white flex flex-col space-y-6 rounded-2xl py-4 px-8 shadow-2xl my-20">
           <div className="flex items-center justify-center">
-            <img
-              src={
-                dataWorker.results.photo
-                  ? NEXT_PUBLIC_API_URL_IMAGE + dataWorker.results.photo
-                  : dataWorker.results.Company?.photo
-                    ? NEXT_PUBLIC_API_URL_IMAGE + dataWorker.results.Company.photo
-                    : "../images/person.png"
-              }
-              className="w-32 h-32 rounded-full"
+            <Image
+              src={dataWorker?.results.photo
+                ? NEXT_PUBLIC_API_URL_IMAGE + dataWorker?.results.photo
+                : dataWorker?.results.Company?.photo
+                  ? NEXT_PUBLIC_API_URL_IMAGE + dataWorker?.results.Company.photo
+                  : "/images/person.png"}
+              placeholder="blur"
+              alt={dataWorker?.results.name}
+              width={128}
+              height={128}
+              priority
+              layout="fixed"
+              className="rounded-full object-center"
             />
           </div>
           <div className="flex flex-col space-y-2">
-            <h1 className="font-semibold text-xl">{dataWorker.results.name}</h1>
-            <h4>{dataWorker.results.jobTitle}</h4>
+            <h1 className="font-semibold text-xl">{dataWorker?.results.name}</h1>
+            <h4>{dataWorker?.results.jobTitle}</h4>
             <span className="flex items-center text-gray-400">
-              {dataWorker.results.address && <FaMapMarkerAlt />}
-              {dataWorker.results.address}
+              {dataWorker?.results.address && <FaMapMarkerAlt className="mr-2" />}
+              {dataWorker?.results.address}
             </span>
           </div>
           <div>
             <p className="text-gray-400 leading-relaxed">
-              {dataWorker.results.bio}
+              {dataWorker?.results.bio}
             </p>
           </div>
           <div className="flex flex-col space-y-2">
             <h1 className="font-semibold text-lg">Skill</h1>
             <div className="grid grid-cols-3 gap-4">
-              {dataWorker.results.WorkerSkills &&
-                dataWorker.results.WorkerSkills.map((item) => (
-                  <CardSkill skill={item.Skill.name} key={item.id} />
+              {dataWorker?.results.WorkerSkills &&
+                dataWorker?.results.WorkerSkills.map((item) => (
+                  <div className="bg-yellow-400 text-white hover:bg-yellow-400 hover:text-white active:bg-yellow-400 font-bold uppercase text-xs px-2 py-2 rounded outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 mr-2">
+                    {item.Skill.name}
+                  </div>
                 ))}
             </div>
           </div>
@@ -167,7 +175,7 @@ function Profile() {
           <section className="bg-white col-span-2 flex flex-col rounded-2xl py-4 px-8 my-20">
             <div className="flex flex-col space-y-4 mb-4">
               <h1 className="font-semibold text-3xl">
-                Hubungi {dataWorker.results.name}
+                Hubungi {dataWorker?.results.name}
               </h1>
               <p className="text-gray-400 leading-relaxed">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
@@ -248,7 +256,7 @@ function Profile() {
                   onClick={handleSubmit}
                   disabled={!isValid}
                   type="submit"
-                  className="w-full text-white font-sans font-bold bg-yellow-500 p-3.5 rounded-md transition delay-150 duration-300 ease-in-out"
+                  className="w-full bg-yellow-400 text-white hover:bg-yellow-400 hover:text-white active:bg-yellow-400 font-bold uppercase text-lg px-4 py-2 rounded outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 mr-2"
                 >
                   Hire
                 </button>

@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
+import Image from "next/image";
 import Layout from "../components/layout";
 import CardOpinion from "../components/common/card-opinion";
 import Link from "next/link";
@@ -12,12 +13,12 @@ import {
 export default function Home() {
   return (
     <Layout>
-      <section className="w-full max-h-screen py-8 sm:grid grid-cols-2 gap-x-2 items-center justify-start">
+      <section className="w-full max-h-screen py-4 sm:grid grid-cols-2 gap-x-2 items-center justify-start">
         <div className="flex flex-col space-y-4 w-auto">
-          <h1 className="font-sans font-semibold text-2xl sm:text-4xl">
+          <h1 className="font-sans font-semibold text-2xl sm:text-4xl capitalize">
             Talenta terbaik negeri untuk perubahan revolusi 4.0
           </h1>
-          <p className="font-sans">
+          <p className="font-sans max-w-sm break-words">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. In euismod
             ipsum et dui rhoncus auctor.
           </p>
@@ -26,14 +27,23 @@ export default function Home() {
           </div>
           <Link href="/">
             <button
-              className="font-sans w-full sm:w-2/5 bg-current-purple text-white rounded-md text-lg font-bold px-4 py-2"
+              className="w-max bg-purple-500 text-white hover:bg-purple-700 hover:text-white active:bg-purple-700 font-bold text-lg px-4 py-2 rounded outline-none focus:outline-none mb-1 ease-linear transition-all duration-150 mr-2"
             >
               Mulai Dari Sekarang
             </button>
           </Link>
         </div>
         <div className="hidden sm:block">
-          <img src="/images/bgpromotion-a.png" className="w-full h-full" />
+          <Image
+            src="/images/bgpromotion-a.png"
+            placeholder="blur"
+            alt="Peworld"
+            width={618}
+            height={618}
+            priority
+            layout="intrinsic"
+            className="w-full h-full"
+          />
         </div>
       </section>
       <section className="w-full h-screen items-center justify-start sm:grid grid-cols-2 gap-x-2 py-8">
